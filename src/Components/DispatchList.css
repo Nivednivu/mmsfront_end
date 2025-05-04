@@ -1,0 +1,52 @@
+.dispatch-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .dispatch-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  
+  .search-input {
+    padding: 5px;
+    width: 200px;
+  }
+  
+  .button-group .btn {
+    padding: 6px 12px;
+    margin-left: 5px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  
+  .btn-add {
+    background-color: #13457a;
+    color: rgb(255, 255, 255);
+  }
+  
+  .btn-refresh {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .dispatch-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #07315e;
+  }
+  
+  .dispatch-table th,
+  .dispatch-table td {
+    color: #fafafa; /* Make sure text is visible */
+  }
+  
+  
+  .dispatch-table thead {
+    background-color: #2a5d9f;
+    color: white;
+  }
+  

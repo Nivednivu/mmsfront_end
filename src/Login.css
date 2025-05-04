@@ -1,0 +1,137 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  margin: 0;
+}
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.image-container {
+  flex: 1;
+  max-width: 50%;
+  margin-left: 150px;
+}
+
+.image-container img {
+  width: 100%;
+  height: auto;
+ 
+}
+
+.form-container {
+  flex: 1;
+  max-width: 500px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 0px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin-left:-756px;
+}
+
+.logo img {
+  width: 100%;
+  height: auto;
+}
+
+h2 {
+  text-align: center;
+  margin: 10px 0;
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 12px 8px;
+  margin: 5px 0 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.toggle-password {
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: #007BFF;
+  margin-left: 10px;
+}
+
+.toggle-password:hover {
+  background-color:white;
+}
+.login-button {
+  width: 12%;
+  padding: 12px;
+  margin-bottom:20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #021224;
+}
+.other-payment-button {
+ margin-top: 10px;
+ margin-left: 200px;
+}
+
+.login-button {
+  background-color: #00346e;
+  color: white;
+  width: 80px;
+  
+}
+.login-button:hover {
+  background-color: #00346e;
+
+}
+
+.other-payment-button {
+  background-color: #00346e;
+  color: white;
+  width: 90px;
+  
+}
+.other-payment-button:hover{
+  background-color: #00346e;
+}
+
+.register-link {
+  text-align: center;
+  margin-top:-10px;
+  margin-right: 450px;
+  display: flex;
+ 
+}
+
+.register-link a {
+  color: #007BFF;
+  text-decoration: none;
+}
+.logo{
+  width:100px;
+}
+.logo1{
+  width: 50px;
+  height: 100px;
+}
+.forgot{
+ padding: 10px;
+ width: 20px;
+ color: rgb(25, 74, 165);
+ margin-left: 20px;
+ 
+ 
+}
+.reg{
+ margin-right: 70px;
+ width: 100%;
+ margin-top: 20px;
+}
