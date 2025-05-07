@@ -1,23 +1,44 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Login.css';
+import { loginAPI } from './Server/allAPI';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loginUser, setLoginUser] = useState({ username: '', password: '' });
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Add login logic here
+
+    const { username, password } = loginUser;
+
+    if (!username || !password) {
+      alert("Please enter both username and password");
+      return;
+    }
+
+    try {
+      const result = await loginAPI({ username, password });
+
+      if (result.status === 200) {
+        alert("Login successful!");
+        // Store token or navigate to dashboard if needed
+        // localStorage.setItem("token", result.data.token)
+        window.location.href = "/Sidebar";
+      } else {
+        alert("Invalid credentials. Please try again.");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Server error. Please try again later.");
+    }
   };
 
   return (
     <div className="login-container">
       <div className="image-container">
-        <img style={{width:'210px',height:'580px'}} src="https://storage.googleapis.com/a1aa/image/2588ea77-81c1-4f7a-2247-9dceadfbd0e7.jpg" alt="Construction Site" />
+        <img style={{ width: '210px', height: '580px' }} src="https://storage.googleapis.com/a1aa/image/2588ea77-81c1-4f7a-2247-9dceadfbd0e7.jpg" alt="Construction Site" />
       </div>
-     
 
       <div className="form-container">
         <div className="logo">
@@ -27,36 +48,35 @@ const Login = () => {
         <form onSubmit={handleLogin}>
           <label>
             Username *
-            <input 
-              type="text" 
-              value={username} 
-              onChange={(e) => setUsername(e.target.value)} 
-              required 
+            <input
+              type="text"
+              value={loginUser.username}
+              onChange={(e) => setLoginUser({ ...loginUser, username: e.target.value })}
+              required
             />
           </label>
           <label>
             Password *
-            <input 
-              type={showPassword ? 'text' : 'password'} 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={loginUser.password}
+              onChange={(e) => setLoginUser({ ...loginUser, password: e.target.value })}
+              required
             />
-            <button 
-              type="button" 
-              className="toggle-password" 
-              onClick={() => setShowPassword(!showPassword)} 
+            <button
+              type="button"
+              className="toggle-password"
+              onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? 'Hide' : 'Show'}
             </button>
           </label>
-          <button type="button" className="login-button">Login</button>
+          <button type="submit" className="login-button">Login</button>
           <button type="button" className="other-payment-button">Other Payment</button>
         </form>
         <p className="register-link">
-          Not Registered?  <a className='reg' href="/Register">Register</a>
-          <a className='forgot' href="Forgot password">forgot password</a>
-          
+          Not Registered? <a className="reg" href="/Register">Register</a>
+          <a className="forgot" href="/forgot-password">Forgot Password</a>
         </p>
       </div>
     </div>

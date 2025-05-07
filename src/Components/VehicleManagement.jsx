@@ -1,111 +1,154 @@
-import React from 'react';
-import './VehicleManagement.css'; // Assuming you have a separate CSS file
+import React, { useState } from 'react';
+import './VehicleManagement.css';
+import { vehiclesAPI } from '../Server/allAPI';
+import { useNavigate } from 'react-router-dom';
 
 const VehicleManagement = () => {
-  return (
+  const navigate = useNavigate()
+  const [userVehicle, setUserVehicle] = useState({
+    registrationNumber: '',
+    ownerName: '',
+    district: '',
+    vehicleRCNumber: '',
+    vehicleFCNumber: '',
+    insuranceNumber: '',
+    vehicleWeight: '',
+    vehicleImage: null,
+    currentStatus: '',
+    vehicleType: '',
+    ownerContact: '',
+    chassisNumber: '',
+    rcValidTill: '',
+    fcValidTill: '',
+    insuranceValidTill: '',
+    maximumCapacity: '',
+    numberPlateImage: null,
+  });
+  console.log(userVehicle);
+  
+
+  const handleChange = (e) => {
+    const { name, value, type, files } = e.target;
+    if (type === 'file') {
+      setUserVehicle({ ...userVehicle, [name]: files[0] });
+    } else {
+      setUserVehicle({ ...userVehicle, [name]: value });
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    const formData = new FormData();
+  
+    // Append each field to the FormData
+    for (const key in userVehicle) {
+      formData.append(key, userVehicle[key]);
+    }
+  
+    try {
+      const response = await vehiclesAPI(formData);
+      console.log("Vehicle submitted:", response.data);
+      
+      // Save to localStorage
+      const vehicles = JSON.parse(localStorage.getItem('vehicles') || '[]');
+      vehicles.push(userVehicle);
+      localStorage.setItem('vehicles', JSON.stringify(vehicles));
+      
+      alert("Vehicle added successfully!");
+      navigate('/dispatch');
+    } catch (err) {
+      console.error("Error submitting vehicle:", err);
+      alert("Failed to add vehicle");
+    }
+  };
+    return (
     <div className="container">
       <h2>Vehicle Management</h2>
-      <form>
+      <form onSubmit={handleSubmit}>
         <div className="form-grid">
           <div className="left-column">
-            <label htmlFor="registrationNumber">Registration Number</label>
-            <input type="text" id="registrationNumber" name="registrationNumber" />
+            <label>Registration Number</label>
+            <input type="text" name="registrationNumber" value={userVehicle.registrationNumber} onChange={handleChange} />
 
-            <label htmlFor="ownerName">Owner Name</label>
-            <input type="text" id="ownerName" name="ownerName" />
-            
-            <label htmlFor="District">District</label>
-            <select id="currentStatus" name="currentStatus">
+            <label>Owner Name</label>
+            <input type="text" name="ownerName" value={userVehicle.ownerName} onChange={handleChange} />
+
+            <label>District</label>
+            <select name="district" value={userVehicle.district} onChange={handleChange}>
+              <option value="">-- Select --</option>
               <option value="Erode">Erode</option>
-              <option value="kallakurichi">kallakurichi</option>
-              <option value="kancheepuram">kancheepuram</option>
-              <option value="kallakurichi">kallakurichi</option>
-              <option value="ikanyakumari">kanyakumari</option>
-              <option value="karur">karur</option>
+              <option value="Kallakurichi">Kallakurichi</option>
+              <option value="Kancheepuram">Kancheepuram</option>
+              <option value="Kanyakumari">Kanyakumari</option>
+              <option value="Karur">Karur</option>
             </select>
 
-            <label htmlFor="vehicleRCNumber">Vehicle RC Number</label>
-            <input type="text" id="vehicleFCNumber" name="vehicleFCNumber" />
-            
+            <label>Vehicle RC Number</label>
+            <input type="text" name="vehicleRCNumber" value={userVehicle.vehicleRCNumber} onChange={handleChange} />
 
-            <label htmlFor="vehicleFCNumber">Vehicle FC Number</label>
-            <input type="text" id="vehicleFCNumber" name="vehicleRCNumber" />
+            <label>Vehicle FC Number</label>
+            <input type="text" name="vehicleFCNumber" value={userVehicle.vehicleFCNumber} onChange={handleChange} />
 
-            <label htmlFor="insuranceNumber">Insurance Number</label>
-            <input type="text" id="insuranceNumber" name="insuranceNumber" />
+            <label>Insurance Number</label>
+            <input type="text" name="insuranceNumber" value={userVehicle.insuranceNumber} onChange={handleChange} />
 
-            <label htmlFor="vehicleWeight">Vehicle Weight (in Empty)</label>
-            <input type="number" id="Maximum capacity" name="Maximum capacity" />
-            
+            <label>Vehicle Weight (Empty)</label>
+            <input type="number" name="vehicleWeight" value={userVehicle.vehicleWeight} onChange={handleChange} />
 
             <h2 className='h2'>Attachments</h2>
 
-            <label htmlFor="vehicleImage">Vehicle Image (file type: jpg, jpeg)</label>
-            <input
-              type="file"
-              id="vehicleImage"
-              name="vehicleImage"
-              accept=".jpg, .jpeg" // Accept only jpg and jpeg formats
-            />
-               
-               <label htmlFor="current status">Current status</label>
-            <select id="currentStatus" name="currentStatus">
-              <option value="active">active</option>
+            <label>Vehicle Image (JPG/JPEG)</label>
+            <input type="file" name="vehicleImage" accept=".jpg,.jpeg" onChange={handleChange} />
+
+            <label>Current Status</label>
+            <select name="currentStatus" value={userVehicle.currentStatus} onChange={handleChange}>
+              <option value="">-- Select --</option>
+              <option value="active">Active</option>
               <option value="inactive">Inactive</option>
             </select>
-           
-           
           </div>
-          
 
           <div className="right-column">
-            <label htmlFor=" Vehicle Type">Vehicle FC Number</label>
-            <select id="currentStatus" name="currentStatus">
-              <option value="active">Tractor</option>
-              <option value="inactive">Lorry</option>
-              <option value="inactive">Tarus 9</option>
-              <option value="inactive">Tipper</option>
-              <option value="inactive">Tarus 12</option>
+            <label>Vehicle Type</label>
+            <select name="vehicleType" value={userVehicle.vehicleType} onChange={handleChange}>
+              <option value="">-- Select --</option>
+              <option value="Tractor">Tractor</option>
+              <option value="Lorry">Lorry</option>
+              <option value="Tarus 9">Tarus 9</option>
+              <option value="Tipper">Tipper</option>
+              <option value="Tarus 12">Tarus 12</option>
             </select>
 
-            <label htmlFor="Owner Contact">Owner Contact</label>
-            <input type="Text" id="Contact number" name="Contact number" />
+            <label>Owner Contact</label>
+            <input type="text" name="ownerContact" value={userVehicle.ownerContact} onChange={handleChange} />
 
-            <label htmlFor="Chassis Number">Owner Contact</label>
-            <input type="Text" id="Chasis number" name="Chasis number" />
+            <label>Chassis Number</label>
+            <input type="text" name="chassisNumber" value={userVehicle.chassisNumber} onChange={handleChange} />
 
-            <label htmlFor="rcValidTill">Rc Valid Till</label>
-            <input type="date" id="rcValidTill" name="rcValidTill" />
+            <label>RC Valid Till</label>
+            <input type="date" name="rcValidTill" value={userVehicle.rcValidTill} onChange={handleChange} />
 
-            <label htmlFor="rcValidTill">Fc Valid Till</label>
-            <input type="date" id="fcValidTill" name="fcValid Till" />
+            <label>FC Valid Till</label>
+            <input type="date" name="fcValidTill" value={userVehicle.fcValidTill} onChange={handleChange} />
 
-            <label htmlFor="Insurance Valid Till">Insurance Valid Till</label>
-            <input type="date" id="Insurance ValidTill" name="Insurance Valid Till" />
+            <label>Insurance Valid Till</label>
+            <input type="date" name="insuranceValidTill" value={userVehicle.insuranceValidTill} onChange={handleChange} />
 
-            <label htmlFor="Maximum Capacity">Maximum Capacity</label>
-            <input type="Text" id="Maximum capacity" name="Maximum Capacity" />
+            <label>Maximum Capacity</label>
+            <input type="text" name="maximumCapacity" value={userVehicle.maximumCapacity} onChange={handleChange} />
 
-           
-
-            <label htmlFor="Number Plate with image">Number plate with image(file Type:jpg,jpeg)Image (file type: jpg, jpeg)</label>
-            <input
-              type="file"
-              id="Number plate Image"
-              name="Number Plate Image"
-              accept=".jpg, .jpeg" // Accept only jpg and jpeg formats
-            />
-
-
+            <label>Number Plate Image (JPG/JPEG)</label>
+            <input type="file" name="numberPlateImage" accept=".jpg,.jpeg" onChange={handleChange} />
           </div>
         </div>
+
         <div className="button-container">
-          <button type="button" className="submit-button">Submit</button>
+          <button type="submit" className="submit-button">Submit</button>
           <button type="button" className="cancel-button">Cancel</button>
         </div>
       </form>
-      
-    </div>
+    </div> 
   );
 };
 

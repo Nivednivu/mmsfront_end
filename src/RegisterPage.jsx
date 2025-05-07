@@ -1,64 +1,141 @@
 import React, { useState } from 'react';
 import './RegistrationPage.css';
+import { registerAPI } from './Server/allAPI';
 
 const RegisterPage = () => {
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [mobileNumber, setMobileNumber] = useState('');
-  const [district, setDistrict] = useState('');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [user, setUser] = useState({
+    fullName: '',
+    email: '',
+    mobileNumber: '',
+    district: '',
+    username: '',
+    password: '',
+    confirmPassword: '',
+  });
+
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    // Handle registration logic
+
+    const {
+      fullName,
+      email,
+      mobileNumber,
+      district,
+      username,
+      password,
+      confirmPassword,
+    } = user;
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    if (!agreedToTerms) {
+      alert("Please agree to the terms and conditions.");
+      return;
+    }
+
+    const reqBody = {
+      fullname: fullName,
+      email,
+      mobilenumber: mobileNumber,
+      district,
+      username,
+      password,
+    };
+
+    try {
+      const result = await registerAPI(reqBody);
+
+      if (result.status === 200) {
+        if (result.data.message === "user already register") {
+          alert("User already registered. Please login.");
+        } else {
+          alert("Registration successful!");
+          window.location.href = "/";
+        }
+      } else {
+        alert("Registration failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      alert("Server error. Please try again later.");
+    }
   };
 
   return (
     <div className="register-container">
       <div className="image-container">
-      
+        {/* Optional image or design */}
       </div>
       <div className="form-container">
         <h2>Mineral Management System - Register</h2>
         <form onSubmit={handleRegister}>
           <label>
             Full Name *
-            <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+            <input
+              type="text"
+              value={user.fullName}
+              onChange={(e) => setUser({ ...user, fullName: e.target.value })}
+              required
+            />
           </label>
           <label>
             Email Address *
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <input
+              type="email"
+              value={user.email}
+              onChange={(e) => setUser({ ...user, email: e.target.value })}
+              required
+            />
           </label>
           <label>
             Mobile Number *
-            <input type="tel" value={mobileNumber} onChange={(e) => setMobileNumber(e.target.value)} required />
+            <input
+              type="tel"
+              value={user.mobileNumber}
+              onChange={(e) => setUser({ ...user, mobileNumber: e.target.value })}
+              required
+            />
           </label>
           <label>
             District *
-            <select value={district} onChange={(e) => setDistrict(e.target.value)} required>
+            <select
+              value={user.district}
+              onChange={(e) => setUser({ ...user, district: e.target.value })}
+              required
+            >
               <option value="">Select District</option>
-              {/* Add your district options here */}
+              <option value="District A">District A</option>
+              <option value="District B">District B</option>
+              <option value="District C">District C</option>
+              {/* Add more district options as needed */}
             </select>
           </label>
           <label>
             Username *
-            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required />
+            <input
+              type="text"
+              value={user.username}
+              onChange={(e) => setUser({ ...user, username: e.target.value })}
+              required
+            />
           </label>
           <label>
             Password *
-            <input 
-              type={showPassword ? 'text' : 'password'} 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={user.password}
+              onChange={(e) => setUser({ ...user, password: e.target.value })}
+              required
             />
-            <button 
-              type="button" 
-              className="toggle-password" 
+            <button
+              type="button"
+              className="toggle-password"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? 'Hide' : 'Show'}
@@ -66,15 +143,21 @@ const RegisterPage = () => {
           </label>
           <label>
             Confirm Password *
-            <input 
-              type={showPassword ? 'text' : 'password'} 
-              value={confirmPassword} 
-              onChange={(e) => setConfirmPassword(e.target.value)} 
-              required 
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={user.confirmPassword}
+              onChange={(e) => setUser({ ...user, confirmPassword: e.target.value })}
+              required
             />
           </label>
-          <label>
-            
+          <label className="terms-label">
+            <input
+              type="checkbox"
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+              required
+            />
+            I agree to the Terms and Conditions *
           </label>
           <button type="submit" className="register-button">Register</button>
         </form>

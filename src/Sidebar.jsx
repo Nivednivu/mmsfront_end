@@ -50,7 +50,7 @@ const Sidebar = () => {
           <h5>VTS</h5>
           <li>GPS Device Management</li>
           <li>
-            <a href="#" onClick={handleVehicleManagementClick}>
+            <a href="/vehicle-manag" onClick={handleVehicleManagementClick}>
               Vehicle Management
             </a>
           </li>
