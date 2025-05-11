@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import './VehicleManagement.css';
-import { vehiclesAPI } from '../Server/allAPI';
-import { useNavigate } from 'react-router-dom';
+import { vehiclesAPI, vehiclesupdateAPI,  } from '../Server/allAPI';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const VehicleManagement = () => {
-  const navigate = useNavigate()
-  const [userVehicle, setUserVehicle] = useState({
+  const navigate = useNavigate();
+  const location = useLocation();
+  const editingVehicle = location.state?.vehicle;
+
+  const [userVehicle, setUserVehicle] = useState(() => editingVehicle || {
     registrationNumber: '',
     ownerName: '',
     district: '',
@@ -24,8 +27,6 @@ const VehicleManagement = () => {
     maximumCapacity: '',
     numberPlateImage: null,
   });
-  console.log(userVehicle);
-  
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -38,38 +39,36 @@ const VehicleManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
     const formData = new FormData();
-  
-    // Append each field to the FormData
+
     for (const key in userVehicle) {
       formData.append(key, userVehicle[key]);
     }
-  
+
     try {
-      const response = await vehiclesAPI(formData);
-      console.log("Vehicle submitted:", response.data);
-      
-      // Save to localStorage
-      const vehicles = JSON.parse(localStorage.getItem('vehicles') || '[]');
-      vehicles.push(userVehicle);
-      localStorage.setItem('vehicles', JSON.stringify(vehicles));
-      
-      alert("Vehicle added successfully!");
-      navigate('/dispatch');
+      if (editingVehicle) {
+        await vehiclesupdateAPI(editingVehicle._id, formData);
+        alert("Vehicle updated successfully!");
+      } else {
+        await vehiclesAPI(formData);
+        alert("Vehicle added successfully!");
+      }
+
+      navigate('/vehicle');
     } catch (err) {
       console.error("Error submitting vehicle:", err);
-      alert("Failed to add vehicle");
+      alert("Failed to submit vehicle");
     }
   };
-    return (
+
+  return (
     <div className="container">
-      <h2>Vehicle Management</h2>
+      <h2>{editingVehicle ? 'Edit Vehicle' : 'Vehicle Management'}</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-grid">
           <div className="left-column">
             <label>Registration Number</label>
-            <input type="text" name="registrationNumber" value={userVehicle.registrationNumber} onChange={handleChange} />
+            <input type="text" name="registrationNumber" value={userVehicle.registrationNumber} onChange={handleChange} disabled={!!editingVehicle} />
 
             <label>Owner Name</label>
             <input type="text" name="ownerName" value={userVehicle.ownerName} onChange={handleChange} />
@@ -144,11 +143,11 @@ const VehicleManagement = () => {
         </div>
 
         <div className="button-container">
-          <button type="submit" className="submit-button">Submit</button>
-          <button type="button" className="cancel-button">Cancel</button>
+          <button type="submit" className="submit-button">{editingVehicle ? 'Update' : 'Submit'}</button>
+          <button type="button" className="cancel-button" onClick={() => navigate('/vehicle-list')}>Cancel</button>
         </div>
       </form>
-    </div> 
+    </div>
   );
 };
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './RegistrationPage.css';
-import { registerAPI } from './Server/allAPI';
+import { useNavigate } from 'react-router-dom';
+import { registerAPI, sendOtpAPI } from './Server/allAPI';
 
 const RegisterPage = () => {
   const [user, setUser] = useState({
@@ -13,8 +14,10 @@ const RegisterPage = () => {
     confirmPassword: '',
   });
 
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -48,22 +51,33 @@ const RegisterPage = () => {
       password,
     };
 
+    setIsLoading(true);
     try {
+      // First register the user
       const result = await registerAPI(reqBody);
 
       if (result.status === 200) {
-        if (result.data.message === "user already register") {
+        if (result.data.message === "user already registered") {
           alert("User already registered. Please login.");
         } else {
-          alert("Registration successful!");
-          window.location.href = "/";
+          // If registration successful, send OTP
+          const otpResponse = await sendOtpAPI({ email });
+          
+          if (otpResponse.status === 200) {
+            alert("OTP sent to your email. Please verify to complete registration.");
+            navigate('/register-otp', { state: { email } });
+          } else {
+            alert("Failed to send OTP. Please try again.");
+          }
         }
       } else {
         alert("Registration failed. Please try again.");
       }
     } catch (error) {
       console.error("Registration error:", error);
-      alert("Server error. Please try again later.");
+      alert(error.response?.data?.message || "Server error. Please try again later.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -113,7 +127,6 @@ const RegisterPage = () => {
               <option value="District A">District A</option>
               <option value="District B">District B</option>
               <option value="District C">District C</option>
-              {/* Add more district options as needed */}
             </select>
           </label>
           <label>
@@ -159,11 +172,15 @@ const RegisterPage = () => {
             />
             I agree to the Terms and Conditions *
           </label>
-          <button type="submit" className="register-button">Register</button>
+          <button type="submit" className="register-button" disabled={isLoading}>
+            {isLoading ? 'Processing...' : 'Register'}
+          </button>
         </form>
         <p className="login-link">
-          Not yet registered? <a href="/login">Back to Login</a>
+          Already registered? <a href="/">Login here</a>
         </p>
+                  <a className="forgot" href="/forgotp">Forgot Password</a>
+
       </div>
     </div>
   );

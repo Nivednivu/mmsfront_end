@@ -76,7 +76,7 @@ const Login = () => {
         </form>
         <p className="register-link">
           Not Registered? <a className="reg" href="/Register">Register</a>
-          <a className="forgot" href="/forgot-password">Forgot Password</a>
+          <a className="forgot" href="/forgotp">Forgot Password</a>
         </p>
       </div>
     </div>

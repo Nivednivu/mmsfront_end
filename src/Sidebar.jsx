@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './Sidebar.css';
 import VehicleManagement from './Components/VehicleManagement';
-import DispatchList from './Components/DispatchList'; // <-- Step 1: Import
+import VehicleList from './Components/VehicleList';
 
 const Sidebar = () => {
   const [showVehicleManagement, setShowVehicleManagement] = useState(false);
@@ -58,7 +58,7 @@ const Sidebar = () => {
       </div>
       <div className={`main-content ${(showVehicleManagement || showDispatchList) ? 'show' : ''}`}>
         {showVehicleManagement && <VehicleManagement />}
-        {showDispatchList && <DispatchList />}
+        {showDispatchList && <VehicleList />}
       </div>
     </div>
   );
