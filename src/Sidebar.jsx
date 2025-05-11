@@ -1,7 +1,7 @@
 // Sidebar.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import './Sidebar.css';
+import './sidebar.css';
 import VehicleManagement from './Components/VehicleManagement';
 import VehicleList from './Components/VehicleList';
 
