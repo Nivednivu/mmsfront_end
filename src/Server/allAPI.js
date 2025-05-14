@@ -42,3 +42,15 @@ export const vehiclesupdateAPI = async (id, formData) => {
       };      
 
     
+      export const queryDataAPI = async (reqBody) => {
+        return await commonAPI("POST", `${SERVER_URL}/query`,reqBody);
+      };      
+
+      export const queryGetAPI = async (reqBody) => {
+        return await commonAPI("GET", `${SERVER_URL}/queryget`,reqBody);
+      };      
+
+export const querySingleGetAPI = async (id) => {
+  return await commonAPI("GET", `${SERVER_URL}/queryget/${id}`);
+};
+    

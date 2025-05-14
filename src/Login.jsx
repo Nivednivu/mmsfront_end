@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Login.css';
 import { loginAPI } from './Server/allAPI';
 
@@ -7,6 +7,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginUser, setLoginUser] = useState({ username: '', password: '' });
 
+  const navigate = useNavigate()
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -24,13 +25,14 @@ const Login = () => {
         alert("Login successful!");
         // Store token or navigate to dashboard if needed
         // localStorage.setItem("token", result.data.token)
-        window.location.href = "/Sidebar";
+        
+         navigate('/userdasboard')
       } else {
         alert("Invalid credentials. Please try again.");
       }
     } catch (error) {
       console.error("Login error:", error);
-      alert("Server error. Please try again later.");
+      alert("not invalid username password.");
     }
   };
 

@@ -1,11 +1,12 @@
 // Sidebar.jsx
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './sidebar.css';
 import VehicleManagement from './Components/VehicleManagement';
 import VehicleList from './Components/VehicleList';
 
 const Sidebar = () => {
+  const navigate = useNavigate()
   const [showVehicleManagement, setShowVehicleManagement] = useState(false);
   const [showDispatchList, setShowDispatchList] = useState(false); // <-- Step 2: State
 
@@ -21,19 +22,21 @@ const Sidebar = () => {
     setShowVehicleManagement(false); // Hide Vehicle Management if Dispatch List is shown
   };
 
+
   return (
     <div className="app-container">
       <div className="sidebar">
         <h2>MIMAS-MM</h2>
         <ul>
           <h5>MIMAS</h5>
+          <li><a href="/admin">Admin Page</a></li>
           <li>Dashboard</li>
           <li>Apply New</li>
           <li>In Process</li>
           <li>Grievances</li>
           <li>Mine Transfer</li>
           <h5>E-PERMIT</h5>
-          <li>E-Permit</li>
+          <li><a href="/query">E-Permit</a> </li>
           <li>Bulk Permit</li>
           <li>Sub Users</li>
           <li>

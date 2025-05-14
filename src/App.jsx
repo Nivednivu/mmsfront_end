@@ -8,6 +8,15 @@ import ViewUpdate from './Components/ViewUpdate';
 import VehicleList from './Components/VehicleList';
 import RegisterOtp from './Components/RegisterOtp';
 import ForgotPasswordPage from './Components/ForgotPassword/ForgotPasswordFlow';
+import AdminLogin from './Components/AdminLogin';
+import AdminDashboard from './Components/AdminDashbord';
+import Query from './Components/Query';
+import QueryList from './Components/QueryList';
+import QueryEdit from './Components/QueryEdit';
+import QueryView from './Components/QueryView';
+import UserDashboard from './Components/User/UserDashboard';
+import UserDispatch from './Components/User/UserDispatch';
+import UserList from './Components/User/UserList';
 
 
 function App() {
@@ -17,12 +26,21 @@ function App() {
       <Route path='/' element={<Login />  }  />
       <Route path='/register' element={<RegisterPage/>  }  />
     
-      <Route path='/Sidebar' element={<Sidebar/>  }  />
+      <Route path='/side' element={<Sidebar/>  }  />
+      <Route path='/admin' element={<AdminLogin/>  }  />
+      <Route path='/query' element={<Query/>  }  />
+      <Route path='/querylist' element={<QueryList/>  }  />
+      <Route path='/queryview/:id' element={<QueryView/>  }  />
+      <Route path='/queryedit/:id' element={<QueryEdit/>  }  />
+      <Route path='/admindashbord' element={<AdminDashboard/>  }  />
       <Route path='/vehicle-manag' element={<VehicleManagement/>  }  />
       <Route path='/view/:id' element={<ViewUpdate/>  }  />
       <Route path='/vehicle' element={<VehicleList/>  }  />
       <Route path='/register-otp' element={<RegisterOtp/>  }  />
       <Route path='/forgotp' element={<ForgotPasswordPage/>  }  />
+      <Route path='/userdasboard' element={<UserDashboard/>  }  />
+      <Route path='/userdispatch' element={<UserDispatch/>  }  />
+      <Route path='/userlist' element={<UserList/>  }  />
 
       {/* <Route path="/vehicle-manag/:id" element={<VehicleForm />} /> */}
 

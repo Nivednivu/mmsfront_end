@@ -17,7 +17,7 @@ function RegisterOtp() {
 
       if (response.status === 200) {
         alert('OTP Verified Successfully!');
-        navigate('/vehicle-manag'); // Navigate to next page
+        navigate('/userdasboard'); // Navigate to next page
       } else {
         alert(response.data?.error || 'Invalid OTP. Please try again.');
       }

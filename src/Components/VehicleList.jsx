@@ -71,6 +71,11 @@ const VehicleList = () => {
   return (
     <div className="vehicle-list-container">
       <h2>Vehicle List</h2>
+      <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'flex-start', gap: '10px' }}>
+  <button className="btn-add" onClick={() => navigate('/add')}>Add New Vehicle</button>
+  <button className="btn-refresh" onClick={fetchVehicles}>Refresh</button>
+</div>
+
       <div className="table-responsive">
         {vehicles.length === 0 ? (
           <p>No vehicles available.</p>
