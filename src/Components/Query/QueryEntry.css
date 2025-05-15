@@ -1,0 +1,26 @@
+.lease-form-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+.form-grid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.form-column {
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 10px;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 8px;
+  font-size: 1rem;
+}

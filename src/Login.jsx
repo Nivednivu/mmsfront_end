@@ -39,7 +39,7 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="image-container">
-        <img style={{ width: '210px', height: '580px' }} src="https://storage.googleapis.com/a1aa/image/2588ea77-81c1-4f7a-2247-9dceadfbd0e7.jpg" alt="Construction Site" />
+        {/* <img style={{ width: '210px', height: '580px' }} src="https://storage.googleapis.com/a1aa/image/2588ea77-81c1-4f7a-2247-9dceadfbd0e7.jpg" alt="Construction Site" /> */}
       </div>
 
       <div className="form-container">
@@ -74,10 +74,11 @@ const Login = () => {
             </button>
           </label>
           <button type="submit" className="login-button">Login</button>
-          <button type="button" className="other-payment-button">Other Payment</button>
+          {/* <button type="button" className="other-payment-button">Other Payment</button> */}
         </form>
         <p className="register-link">
           Not Registered? <a className="reg" href="/Register">Register</a>
+          <a className='admin' href="/admin">Admin</a>
           <a className="forgot" href="/forgotp">Forgot Password</a>
         </p>
       </div>

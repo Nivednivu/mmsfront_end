@@ -17,6 +17,9 @@ import QueryView from './Components/QueryView';
 import UserDashboard from './Components/User/UserDashboard';
 import UserDispatch from './Components/User/UserDispatch';
 import UserList from './Components/User/UserList';
+import QueryEntry from './Components/Query/QueryEntry';
+import QueryAdminView from './Components/Query/QueryAdminView';
+import QueryAdminList from './Components/Query/QueryAdminList';
 
 
 function App() {
@@ -41,6 +44,9 @@ function App() {
       <Route path='/userdasboard' element={<UserDashboard/>  }  />
       <Route path='/userdispatch' element={<UserDispatch/>  }  />
       <Route path='/userlist' element={<UserList/>  }  />
+      <Route path='/queryentry' element={<QueryEntry/>  }  />
+      <Route path='/adminqlist' element={<QueryAdminList/>  }  />
+      <Route path='/adminqview/:id' element={<QueryAdminView/>  }  />
 
       {/* <Route path="/vehicle-manag/:id" element={<VehicleForm />} /> */}
 
