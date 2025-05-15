@@ -16,11 +16,11 @@ const Sidebar = () => {
     setShowDispatchList(false); // Hide Dispatch List if Vehicle Management is shown
   };
 
-  const handleDispatchListClick = (e) => {
-    e.preventDefault();
-    setShowDispatchList(!showDispatchList);
-    setShowVehicleManagement(false); // Hide Vehicle Management if Dispatch List is shown
-  };
+  // const handleDispatchListClick = (e) => {
+  //   e.preventDefault();
+  //   setShowDispatchList(!showDispatchList);
+  //   setShowVehicleManagement(false); // Hide Vehicle Management if Dispatch List is shown
+  // };
 
 
   return (
@@ -29,8 +29,12 @@ const Sidebar = () => {
         <h2>MIMAS-MM</h2>
         <ul>
           <h5>MIMAS</h5>
+          
           <li><a href="/admin">Admin Page</a></li>
-          <li>Dashboard</li>
+          <Link to={'/queryentry'}
+           style={{  color: '#333',  textDecoration: 'none',}}>
+          <li> Dashboard</li>
+          </Link>
           <li>Apply New</li>
           <li>In Process</li>
           <li>Grievances</li>
@@ -39,11 +43,16 @@ const Sidebar = () => {
           <li><a href="/query">E-Permit</a> </li>
           <li>Bulk Permit</li>
           <li>Sub Users</li>
-          <li>
+                    <Link to={'/adminqlist'}
+           style={{  color: '#333',  textDecoration: 'none',}}>
+          <li>  Dispatch List</li>
+          </Link>
+
+          {/* <li>
             <a href="#" onClick={handleDispatchListClick}>
               Dispatch List
             </a>
-          </li>
+          </li> */}
           <li>Vehicle In and Out List</li>
           <li>Weighbridge List</li>
           <li>Storage License</li>
@@ -59,10 +68,10 @@ const Sidebar = () => {
           </li>
         </ul>
       </div>
-      <div className={`main-content ${(showVehicleManagement || showDispatchList) ? 'show' : ''}`}>
+      {/* <div className={`main-content ${(showVehicleManagement || showDispatchList) ? 'show' : ''}`}>
         {showVehicleManagement && <VehicleManagement />}
         {showDispatchList && <VehicleList />}
-      </div>
+      </div> */}
     </div>
   );
 };

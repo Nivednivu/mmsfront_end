@@ -1,58 +1,127 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import './UserList.css'; // Optional: Add CSS for table/form layout
 
 function UserList() {
-  const [dispatchData, setDispatchData] = useState([]);
+  const [latestDispatch, setLatestDispatch] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedData, setEditedData] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     const storedData = JSON.parse(localStorage.getItem('dispatchData')) || [];
-    setDispatchData(storedData);
+    if (storedData.length > 0) {
+      const lastEntry = storedData[storedData.length - 1];
+      setLatestDispatch(lastEntry);
+      setEditedData(lastEntry);
+    }
   }, []);
-console.log(dispatchData);
+
+  const handleInputChange = (field, value) => {
+    setEditedData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleEditToggle = () => setIsEditing(true);
+
+  const handleSave = () => {
+    const storedData = JSON.parse(localStorage.getItem('dispatchData')) || [];
+    if (storedData.length > 0) {
+      storedData[storedData.length - 1] = editedData;
+      localStorage.setItem('dispatchData', JSON.stringify(storedData));
+      setLatestDispatch(editedData);
+      setIsEditing(false);
+    }
+  };
+
+  const handleView = () => {
+    localStorage.setItem('viewDispatch', JSON.stringify(latestDispatch));
+    navigate('/userview');
+  };
+
+  const renderCell = (field) => {
+    return isEditing ? (
+      <input
+        type="text"
+        value={editedData[field]}
+        onChange={(e) => handleInputChange(field, e.target.value)}
+      />
+    ) : (
+      latestDispatch[field]
+    );
+  };
 
   return (
-    <div>
-      <h2>Dispatch List</h2>
-      {dispatchData.length === 0 ? (
-        <p>No dispatch records found.</p>
+    <div className="user-list-container">
+      <h2>Latest Dispatch Entry</h2>
+      {!latestDispatch ? (
+        <p>No dispatch record found.</p>
       ) : (
-        <table border="1" cellPadding="10">
-          <thead>
-            <tr>
-              <th>Delivered To</th>
-              <th>Vehicle No</th>
-              <th>Vehicle Type</th>
-              <th>Total Distance</th>
-              <th>Traveling Date</th>
-              <th>Required Time</th>
-              <th>Quantity</th>
-              <th>Driver Name</th>
-              <th>Driver Phone</th>
-              <th>License No</th>
-              <th>Address</th>
-              <th>Signature</th>
-              <th>Via</th>
-            </tr>
-          </thead>
-          <tbody>
-            {dispatchData.map((item, index) => (
-              <tr key={index}>
-                <td>{item.deliveredTo}</td>
-                <td>{item.vehicleNo}</td>
-                <td>{item.vehicleType}</td>
-                <td>{item.totalDistance}</td>
-                <td>{item.travellingDate}</td>
-                <td>{item.requiredTime}</td>
-                <td>{item.quantity}</td>
-                <td>{item.driverName}</td>
-                <td>{item.driverPhoneNo}</td>
-                <td>{item.driverLicenseNo}</td>
-                <td>{item.destinationAddress}</td>
-                <td>{item.driverSignature}</td>
-                <td>{item.via}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <>
+          <div className="table-wrapper">
+            <table className="dispatch-table">
+              <thead>
+                <tr>
+                  <th>Delivered To</th>
+                  <th>Vehicle No</th>
+                  <th>Vehicle Type</th>
+                  <th>Total Distance (km)</th>
+                  <th>Travel Date</th>
+                  <th>Required Time</th>
+                  <th>Quantity (MT)</th>
+                  <th>Driver Name</th>
+                  <th>Phone No</th>
+                  <th>License No</th>
+                  <th>Address</th>
+                  <th>Signature</th>
+                  <th>Via</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  {[
+                    'deliveredTo',
+                    'vehicleNo',
+                    'vehicleType',
+                    'totalDistance',
+                    'travellingDate',
+                    'requiredTime',
+                    'quantity',
+                    'driverName',
+                    'driverPhoneNo',
+                    'driverLicenseNo',
+                    'destinationAddress'
+                  ].map(field => (
+                    <td key={field}>{renderCell(field)}</td>
+                  ))}
+                  <td>
+                    {latestDispatch.driverSignature ? (
+                      <img
+                        src={latestDispatch.driverSignature}
+                        alt="Signature"
+                        style={{ height: '50px' }}
+                      />
+                    ) : (
+                      'N/A'
+                    )}
+                  </td>
+                  <td>{renderCell('via')}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="button-group">
+            {!isEditing ? (
+              <button onClick={handleEditToggle}>Edit</button>
+            ) : (
+              <button onClick={handleSave}>Save</button>
+            )}
+            <button onClick={handleView}>View</button>
+          </div>
+        </>
       )}
     </div>
   );

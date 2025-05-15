@@ -20,6 +20,7 @@ import UserList from './Components/User/UserList';
 import QueryEntry from './Components/Query/QueryEntry';
 import QueryAdminView from './Components/Query/QueryAdminView';
 import QueryAdminList from './Components/Query/QueryAdminList';
+import UserView from './Components/User/UserView';
 
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
       <Route path='/queryentry' element={<QueryEntry/>  }  />
       <Route path='/adminqlist' element={<QueryAdminList/>  }  />
       <Route path='/adminqview/:id' element={<QueryAdminView/>  }  />
+      <Route path='/userview' element={<UserView/>  }  />
 
       {/* <Route path="/vehicle-manag/:id" element={<VehicleForm />} /> */}
 

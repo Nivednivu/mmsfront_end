@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './QueryEntry.css';
 import { adminAddQuaeyAPI } from '../../Server/allAPI';
 import { useNavigate } from 'react-router-dom';
 
 function QueryEntry() {
-    const navigate = useNavigate()
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     hsnCode: '',
     lesseeId: '',
@@ -17,58 +18,87 @@ function QueryEntry() {
     classification: '',
     leasePeriod: '',
     withinTamilNadu: '',
-    mineralName: ''
+    mineralName: '',
+    signature: null
   });
 
+  const [previewURL, setPreviewURL] = useState(null);
+
+  // Generate preview when signature is updated
+  useEffect(() => {
+    if (formData.signature) {
+      const url = URL.createObjectURL(formData.signature);
+      setPreviewURL(url);
+
+      return () => URL.revokeObjectURL(url); // Clean up memory
+    }
+  }, [formData.signature]);
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    const { name, value, files } = e.target;
+
+    if (name === 'signature') {
+      setFormData((prev) => ({
+        ...prev,
+        signature: files[0],
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    const response = await adminAddQuaeyAPI(formData);
+    try {
+      // Use FormData if signature is included
+      const dataToSend = new FormData();
+      for (const key in formData) {
+        dataToSend.append(key, formData[key]);
+      }
 
-    if (response.status === 201) {
-      // ✅ Save to localStorage
-      const existingEntries = JSON.parse(localStorage.getItem('leaseEntries')) || [];
-      const updatedEntries = [...existingEntries, formData];
-      localStorage.setItem('leaseEntries', JSON.stringify(updatedEntries));
+      const response = await adminAddQuaeyAPI(dataToSend);
 
-      alert('Data submitted and saved locally!');
-      navigate('/adminqlist')
-      setFormData({
-        hsnCode: '',
-        lesseeId: '',
-        minecode: '',
-        lesseeNameAddress: '',
-        lesseeAreaDetails: '',
-        districtName: '',
-        village: '',
-        sfNoExtent: '',
-        classification: '',
-        leasePeriod: '',
-        withinTamilNadu: '',
-        mineralName: ''
-      });
-    } else {
-      alert('Submission failed. Please check your data.');
+      if (response.status === 201) {
+        const existingEntries = JSON.parse(localStorage.getItem('leaseEntries')) || [];
+        const updatedEntries = [...existingEntries, { ...formData, signature: undefined }];
+        localStorage.setItem('leaseEntries', JSON.stringify(updatedEntries));
+
+        alert('Data submitted and saved locally!');
+        navigate('/adminqlist');
+
+        setFormData({
+          hsnCode: '',
+          lesseeId: '',
+          minecode: '',
+          lesseeNameAddress: '',
+          lesseeAreaDetails: '',
+          districtName: '',
+          village: '',
+          sfNoExtent: '',
+          classification: '',
+          leasePeriod: '',
+          withinTamilNadu: '',
+          mineralName: '',
+          signature: null,
+        });
+        setPreviewURL(null);
+      } else {
+        alert('Submission failed. Please check your data.');
+      }
+    } catch (error) {
+      console.error('Submission Error:', error);
+      alert('Error occurred while submitting. Check console for details.');
     }
-  } catch (error) {
-    console.error('Submission Error:', error);
-    alert('Error occurred while submitting. Check console for details.');
-  }
-};
+  };
 
   return (
     <div className="lease-form-container">
       <h2>Lease Information</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} encType="multipart/form-data">
         <div className="form-grid">
           {/* LEFT COLUMN */}
           <div className="form-column">
@@ -137,6 +167,17 @@ const handleSubmit = async (e) => {
             <div>
               <label>Mineral Name:</label>
               <input type="text" name="mineralName" value={formData.mineralName} onChange={handleChange} />
+            </div>
+
+            {/* Signature Input */}
+            <div className="signature-box">
+              <label className="signature-title">Signature of AD / DD:</label>
+              <input type="file" name="signature" accept="image/*" onChange={handleChange} />
+              {previewURL && (
+                <div className="signature-preview">
+                  <img src={previewURL} alt="Signature Preview" />
+                </div>
+              )}
             </div>
           </div>
         </div>

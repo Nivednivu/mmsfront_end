@@ -24,3 +24,22 @@ input, textarea, select {
   padding: 8px;
   font-size: 1rem;
 }
+
+
+
+.signature-box {
+  margin-top: 1rem;
+}
+
+.signature-title {
+  font-weight: bold;
+}
+
+.signature-preview img {
+  max-width: 80px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+
