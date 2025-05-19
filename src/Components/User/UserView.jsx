@@ -261,9 +261,9 @@ const updateGeneratedNumbers = (disp, tn, nextNum,Bulk) => {
         )}
       </div>
       <div style={{display:'flex',gap:'385px'}} className="header-info">
-        <p className="font-semibold" style={{ marginLeft: '0px' }}>HSN Code: {data.hsnCode || "-"}</p>
+        <p className="font-semibold" style={{ marginLeft: '0px' }}>HSN Code : {data.hsnCode || "-"}</p>
     <p style={{ marginLeft: '-17px' }}>
-  Date & Time of Dispatch: {data.travellingDate ? 
+  Date & Time of Dispatch : {data.travellingDate ? 
     new Date(data.travellingDate).toLocaleString('en-GB', {
       day: '2-digit',
       month: '2-digit',
@@ -285,15 +285,15 @@ const updateGeneratedNumbers = (disp, tn, nextNum,Bulk) => {
       <table className="query-table">
         <tbody className="table-body">
           <tr>
-            <td>Lessee Id: {data.lesseeId}</td>
+            <td>Lessee Id : {data.lesseeId}</td>
             <td>Minecode: {data.minecode}</td>
             <td>Lease Area Details</td>
-            <td >Serial No: <span className='serial' style={{letterSpacing:'1px',fontSize:'8px'}} >{currentSerial}</span></td>
+            <td >Serial No : <span className='serial' style={{letterSpacing:'1px',fontSize:'8px'}} >{currentSerial}</span></td>
           </tr>
           <tr>
-            <td >Lessee Name and Address:</td>
+            <td >Lessee Name and Address :</td>
             <td>{data.lesseeName}</td>
-            <td>District Name:</td>
+            <td>District Name :</td>
             <td>{data.districtName}</td>
           </tr>
           <tr>
@@ -306,46 +306,46 @@ const updateGeneratedNumbers = (disp, tn, nextNum,Bulk) => {
             <td>{data.village}</td>
           </tr>
           <tr>
-            <td>SF.NoExtent:</td>
+            <td>SF.NoExtent :</td>
             <td>{data.sfNoExtent}</td>
           </tr>
           <tr>
-            <td>Mineral Name: {data.mineralName}</td>
-            <td>Bulk Permit No: {lastBulkNumber}</td>
+            <td>Mineral Name : {data.mineralName}</td>
+            <td>Bulk Permit No : {lastBulkNumber}</td>
             <td>Classification</td>
             <td>{data.classification}</td>
           </tr>
           <tr>
-            <td colSpan="2">Order Ref: {data.orderRef}</td>
-            <td>Lease Period:</td>
+            <td colSpan="2">Order Ref : {data.orderRef}</td>
+            <td>Lease Period :</td>
             <td>{data.leasePeriod}</td>
           </tr>
           <tr>
-            <td>Dispatch Slip No:</td>
+            <td>Dispatch Slip No :</td>
             <td>{generateDispatchNo} </td>
             <td>Within Tamil Nadu</td>
             <td>{data.withinTamilNadu}</td>
           </tr>
           <tr>
-            <td>Delivered To:</td>
+            <td>Delivered To :</td>
             <td colSpan="3">{data.deliveredTo}</td>
           </tr>
           <tr>
-            <td>Vehicle No:</td>
+            <td>Vehicle No :</td>
             <td>{data.vehicleNo}</td>
-            <td colSpan="2">Destination Address:</td>
+            <td colSpan="2">Destination Address :</td>
           </tr>
           <tr>
-            <td>Vehicle Type:</td>
+            <td>Vehicle Type :</td>
             <td>{data.vehicleType}</td>
             <td  style={{ textAlign: 'left', verticalAlign: 'top'}}  colSpan="2" rowSpan="4">{data.destinationAddress}</td>
           </tr>
           <tr>
-            <td>Total Distance (in Kms):</td>
+            <td>Total Distance (in Kms) :</td>
             <td>{data.totalDistance}</td>
           </tr>
          <tr>
-  <td>Travelling Date:</td>
+  <td>Travelling Date :</td>
   <td>
     {data.travellingDate
       ? new Date(data.travellingDate).toLocaleString('en-GB', {
@@ -388,29 +388,29 @@ const updateGeneratedNumbers = (disp, tn, nextNum,Bulk) => {
 </tr>
 
           <tr>
-            <td>Quantity (in MT):</td>
+            <td>Quantity (in MT) :</td>
             <td>{data.quantity}</td>
-            <td>Driver Name:</td>
+            <td>Driver Name :</td>
             <td>{data.driverName}</td>
           </tr>
           <tr>
-            <td>Driver License No:</td>
+            <td>Driver License No :</td>
             <td>{data.driverLicenseNo}</td>
             <td>Via</td>
             <td>{data.via}</td>
           </tr>
           <tr>
-            <td>Driver Phone No:</td>
+            <td>Driver Phone No :</td>
             <td>{data.driverPhoneNo}</td>
-            <td>Lessee / Authorized Person Name:</td>
+            <td>Lessee / Authorized Person Name :</td>
             <td>{data.authorizedPersonName}</td>
           </tr>
           <tr>
-            <td>Driver Signature:</td>
+            <td>Driver Signature :</td>
             <td>
              
             </td>
-            <td>Signature of AD / DD:</td>
+            <td>Signature of AD / DD :</td>
             <td>
               {data.signature ? 
                 <img src={data.signature} alt="AD Signature" style={{ maxHeight: '30px' }} /> : 
