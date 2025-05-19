@@ -77,7 +77,7 @@ const generateSerialNumber = () => {
 const updateGeneratedNumbers = (disp, tn, nextNum,Bulk) => {
   const newDispatchNo = `DISP36${disp}`;
   const newGenerateNo = `TN00${tn}`;
-  const newSerialNo =`TN${nextNum}`;
+  const newSerialNo =`TN00${nextNum}`;
   const newBulkNum = `${Bulk}`;
 
   localStorage.setItem('dispNumber', disp.toString());
