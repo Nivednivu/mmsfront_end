@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { toPng } from 'html-to-image';
 import './UserView.css';
+import { queryDataAPI } from '../../Server/allAPI';
 
 function UserView() {
   const [queryData, setQueryData] = useState(null);
@@ -120,6 +121,21 @@ const updateGeneratedNumbers = (disp, tn, nextNum,Bulk) => {
       setError('Nothing to print');
       return;
     }
+       const dataToSend = {
+      ...queryData,
+      dispatchNo: generateDispatchNo,
+      serialNo: currentSerial,
+      bulkNo: lastBulkNumber,
+      printTime: new Date().toISOString()
+    };
+
+    // Send data to the database
+    const response = await queryDataAPI(dataToSend);
+    
+    if (response.status !== 200 && response.status !== 201) {
+      throw new Error('Failed to save to database');
+    }
+
 
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
