@@ -30,11 +30,24 @@ const Sidebar = () => {
         <ul>
           <h5>MIMAS</h5>
           
-          <li><a href="/admin">Admin Page</a></li>
           <Link to={'/queryentry'}
            style={{  color: '#333',  textDecoration: 'none',}}>
           <li> Dashboard</li>
           </Link>
+
+                    <Link to={'/adminlist'}   style={{  color: '#333',  textDecoration: 'none',}}>
+            <li>Admin List</li>
+
+          </Link>
+
+
+          <Link to={'/adminlast'}   style={{  color: '#333',  textDecoration: 'none',}}>
+            <li>Admin Last Data</li>
+
+          </Link>
+
+
+          
           <li>Apply New</li>
           <li>In Process</li>
           <li>Grievances</li>
@@ -43,7 +56,7 @@ const Sidebar = () => {
           <li><a href="/query">E-Permit</a> </li>
           <li>Bulk Permit</li>
           <li>Sub Users</li>
-                    <Link to={'/adminqlist'}
+                    <Link to={'/adminlist'}
            style={{  color: '#333',  textDecoration: 'none',}}>
           <li>  Dispatch List</li>
           </Link>

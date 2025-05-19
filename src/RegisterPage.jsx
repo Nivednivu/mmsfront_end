@@ -15,7 +15,6 @@ const RegisterPage = () => {
 
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleRegister = async (e) => {
@@ -34,10 +33,7 @@ const RegisterPage = () => {
       return;
     }
 
-    if (!agreedToTerms) {
-      alert("Please agree to the terms and conditions.");
-      return;
-    }
+   
 
     const reqBody = {
       fullname: fullName,

@@ -44,7 +44,6 @@ const Login = () => {
 
       <div className="form-container">
         <div className="logo">
-          <img src="https://storage.googleapis.com/a1aa/image/e8b3452e-9af4-49c7-5599-c82dfad9be04.jpg" alt="Mineral Management System Logo" />
         </div>
         <h2>Mineral Management System</h2>
         <form onSubmit={handleLogin}>

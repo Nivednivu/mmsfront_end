@@ -110,7 +110,7 @@ function UserList() {
                   <td>{renderCell('via')}</td>
                 </tr>
               </tbody>
-            </table>
+            </table>  
           </div>
 
           <div className="button-group">

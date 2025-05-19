@@ -53,13 +53,7 @@ export const vehiclesupdateAPI = async (id, formData) => {
 export const querySingleGetAPI = async (id) => {
   return await commonAPI("GET", `${SERVER_URL}/queryget/${id}`);
 };
-export const employeeAddtAPI = async (reqBody) => {
-  return await commonAPI("POST", `${SERVER_URL}/employeeadd/`,reqBody);
-};
-    
-export const employeeGetAPI = async (id) => {
-  return await commonAPI("GET", `${SERVER_URL}/employeeget/${id}`);
-};
+
 
 export const adminAddQuaeyAPI = async (reqBody) => {
   return await commonAPI("POST", `${SERVER_URL}/adminadd`,reqBody);
@@ -67,6 +61,10 @@ export const adminAddQuaeyAPI = async (reqBody) => {
     
 export const adminAddQuaeyAllAPI = async (reqBody) => {
   return await commonAPI("GET", `${SERVER_URL}/adminadd`,reqBody);
+};
+
+export const adminAddQuaeyLastAPI = async (reqBody) => {
+  return await commonAPI("GET", `${SERVER_URL}/admingetlast`,reqBody);
 };
     
 export const adminAddQuaeyByIdAPI = async (id) => {
@@ -77,3 +75,16 @@ export const adminQuaeyIdupdateAPI = async (id) => {
 };
     
 
+export const adminDeleteQueryByIdAPI = async (id) => {
+  return await commonAPI("DELETE", `${SERVER_URL}/admin/delete/${id}`);
+};
+
+
+
+export const employeeAddtAPI = async (reqBody) => {
+  return await commonAPI("POST", `${SERVER_URL}/employeeadd/`,reqBody);
+};
+    
+export const employeeGetAPI = async (id) => {
+  return await commonAPI("GET", `${SERVER_URL}/employeeget/${id}`);
+};

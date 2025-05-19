@@ -1,0 +1,75 @@
+/* Screen styles */
+.container {
+  max-width: 800px;
+  margin: 20px ;
+
+}
+
+.query-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+
+}
+
+.query-table td {
+  border: 1px solid #ddd;
+  padding: 6px 8px;
+  line-height: 1.3;
+  
+
+}
+
+/* Print optimization */
+@media print {
+  body {
+    zoom: 85%; /* Slightly shrink content */
+  }
+
+  
+  .no-print {
+    display: none !important;
+  }
+ 
+  
+  .query-table {
+    font-size: 6px !important;
+   align-items:center ;
+    
+  }
+  
+  .query-table td {
+    padding: 2px 2px !important;
+    
+  }
+  
+  
+  /* Compact table layout */
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+  
+  /* Reduce spacing */
+  .section {
+    margin-bottom: 1mm !important;
+  }
+  
+  /* Smaller QR code */
+  canvas {
+    width: 50px !important;
+    height: 40px !important;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .query-table {
+    font-size: 8px;
+  }
+  
+  .query-table td {
+    padding: 3px 5px;
+  }
+ 
+}

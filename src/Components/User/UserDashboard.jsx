@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './UserDashbord.css';
 import { FaFileAlt, FaTruck } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function UserDashboard() {
   const navigate = useNavigate();
@@ -22,6 +22,7 @@ function UserDashboard() {
     navigate('/userlist'); // Navigate to UserDispatch page
   };
 
+
   return (
     <div className="dashboard-container">
       {/* Sidebar */}
@@ -37,6 +38,11 @@ function UserDashboard() {
             <FaTruck className="icon-green" />
             <span>Dispatch</span>
           </li>
+                    <Link to={'/userview'}
+           style={{  color: '#333',  textDecoration: 'none',}}>
+          <li>  User View</li>
+          </Link>
+
         </ul>
       </aside>
 

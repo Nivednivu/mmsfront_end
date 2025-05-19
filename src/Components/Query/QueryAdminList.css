@@ -1,0 +1,41 @@
+.admin-list {
+  max-width: 95%;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.admin-list h2 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.admin-list table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+
+.admin-list th {
+  background-color: #3498db; /* Blue background */
+  color: white;
+  padding: 10px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.admin-list td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.admin-list img {
+  object-fit: contain;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 2px;
+}

@@ -1,0 +1,99 @@
+.admin-view-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px 30px;
+  border-radius: 12px;
+  background-color: #f9fafb;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+.admin-view-container h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+  color: #2c3e50;
+}
+
+.entry-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background-color: #fff;
+  border-left: 4px solid #4f46e5;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.detail-row:hover {
+  background-color: #f0f4ff;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #374151;
+  width: 50%;
+}
+
+.detail-value {
+  text-align: right;
+  width: 50%;
+  font-weight: 500;
+  color: #1f2937;
+  word-break: break-word;
+}
+
+.error-message {
+  color: #b91c1c;
+  text-align: center;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+/* Navigation Button Styles */
+.navigation-container {
+  margin-bottom: 20px;
+}
+
+.dashboard-button {
+  background-color: #3498db;
+  border: none;
+  border-radius: 4px;
+  padding: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-button:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-link {
+  display: inline-block;
+  padding: 10px 20px;
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.dashboard-link:hover {
+  color: white;
+}
+
+/* If you want an icon with the button */
+.dashboard-link::before {
+  content: "←";
+  margin-right: 8px;
+  font-size: 12px;
+}

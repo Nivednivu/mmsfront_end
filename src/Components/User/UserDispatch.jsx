@@ -4,8 +4,7 @@ import { employeeAddtAPI } from '../../Server/allAPI';
 import { useNavigate } from 'react-router-dom';
 
 function UserDispatch() {
-
-    const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const getCurrentDateTime = () => {
     const now = new Date();
@@ -13,6 +12,8 @@ function UserDispatch() {
     const local = new Date(now.getTime() - offset * 60000);
     return local.toISOString().slice(0, 16); // For datetime-local
   };
+
+  const [autoDate, setAutoDate] = useState(true);
 
   const [formData, setFormData] = useState({
     deliveredTo: '',
@@ -30,23 +31,27 @@ function UserDispatch() {
     via: ''
   });
 
-  // Update travellingDate every 1 minute
+  // Update travellingDate every 1 minute when auto is on
   useEffect(() => {
-    const interval = setInterval(() => {
-      setFormData(prev => ({
-        ...prev,
-        travellingDate: getCurrentDateTime()
-      }));
-    }, 60000);
-    return () => clearInterval(interval);
-  }, []);
+    if (autoDate) {
+      const interval = setInterval(() => {
+        setFormData(prev => ({
+          ...prev,
+          travellingDate: getCurrentDateTime()
+        }));
+      }, 60000);
+      return () => clearInterval(interval);
+    }
+  }, [autoDate]);
+
 
   // Automatically calculate Required Time based on totalDistance
+
   useEffect(() => {
     if (formData.totalDistance) {
       const distance = parseFloat(formData.totalDistance);
       if (!isNaN(distance)) {
-        const now = new Date();
+        const now = new Date(formData.travellingDate);
         const travelTimeInHours = distance / 50;
         const travelTimeInMs = travelTimeInHours * 60 * 60 * 1000;
         const requiredDateTime = new Date(now.getTime() + travelTimeInMs);
@@ -59,7 +64,7 @@ function UserDispatch() {
         }));
       }
     }
-  }, [formData.totalDistance]);
+  }, [formData.totalDistance, formData.travellingDate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -69,39 +74,43 @@ function UserDispatch() {
     }));
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    const existingData = JSON.parse(localStorage.getItem('dispatchData')) || [];
-    const updatedData = [...existingData, formData];
+    try {
+      const existingData = JSON.parse(localStorage.getItem('dispatchData')) || [];
+      const updatedData = [...existingData, formData];
 
-    localStorage.setItem('dispatchData', JSON.stringify(updatedData));
+      localStorage.setItem('dispatchData', JSON.stringify(updatedData));
+ const response = await employeeAddtAPI(formData);
+      console.log(response);
+      
+      alert('Dispatch data submitted successfully!');
+      navigate('/userview');
 
-    alert('Dispatch data submitted successfully!');
-    navigate('/userlist');
+      // Reset form
+      setFormData({
+        deliveredTo: '',
+        vehicleNo: '',
+        vehicleType: '',
+        totalDistance: '',
+        travellingDate: getCurrentDateTime(),
+        requiredTime: '',
+        quantity: '',
+        driverName: '',
+        driverPhoneNo: '',
+        driverLicenseNo: '',
+        destinationAddress: '',
+        driverSignature: '',
+        via: ''
+      });
+    } catch (error) {
+      console.error('Error submitting data:', error);
+      alert('Failed to submit dispatch data');
+    }
+  };
 
-    // Reset form
-    setFormData({
-      deliveredTo: '',
-      vehicleNo: '',
-      vehicleType: '',
-      totalDistance: '',
-      travellingDate: getCurrentDateTime(),
-      requiredTime: '',
-      quantity: '',
-      driverName: '',
-      driverPhoneNo: '',
-      driverLicenseNo: '',
-      destinationAddress: '',
-      driverSignature: '',
-      via: ''
-    });
-  } catch (error) {
-    console.error('Error submitting data:', error);
-    alert('Failed to submit dispatch data');
-  }
-};
   return (
     <div className="dispatch-container">
       <h2>Dispatch For</h2>
@@ -135,17 +144,36 @@ const handleSubmit = async (e) => {
 
           <div>
             <label>Traveling Date & Time:</label>
+            <div className="flex items-center gap-2 mb-1">
+              <label>
+                <input
+                  type="radio"
+                  name="mode"
+                  checked={autoDate}
+                  onChange={() => setAutoDate(true)}
+                /> Auto
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="mode"
+                  checked={!autoDate}
+                  onChange={() => setAutoDate(false)}
+                /> Manual
+              </label>
+            </div>
             <input
               type="datetime-local"
               name="travellingDate"
               value={formData.travellingDate}
-              readOnly
+              onChange={handleChange}
+              readOnly={autoDate}
               className="input"
             />
           </div>
 
           <div>
-            <label>Required Date & Time:</label>
+            <label style={{marginTop:'70px'}}>Required Date & Time:</label>
             <input
               type="datetime-local"
               name="requiredTime"
@@ -156,7 +184,7 @@ const handleSubmit = async (e) => {
           </div>
 
           <div>
-            <label>Quantity (in MT):</label>
+            <label style={{marginTop:'70px',marginRight:'10px'}}>Quantity (in MT):</label>
             <input type="number" name="quantity" value={formData.quantity} onChange={handleChange} className="input" />
           </div>
 
