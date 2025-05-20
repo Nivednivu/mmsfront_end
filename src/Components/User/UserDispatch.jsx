@@ -87,7 +87,7 @@ function UserDispatch() {
       console.log(response);
       
       alert('Dispatch data submitted successfully!');
-      navigate('/userview');
+      navigate('/userlist');
 
       // Reset form
       setFormData({
