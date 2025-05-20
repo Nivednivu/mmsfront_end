@@ -23,8 +23,10 @@
 /* Print optimization */
 @media print {
   body {
+    
     zoom: 85%; /* Slightly shrink content */
   }
+  
 
   
   .no-print {

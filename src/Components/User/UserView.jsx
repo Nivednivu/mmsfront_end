@@ -2,26 +2,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { toPng } from 'html-to-image';
 import './UserView.css';
-import { queryDataAPI } from '../../Server/allAPI';
 
 function UserView() {
   const [queryData, setQueryData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [generateNo, setGenerateNo] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const printRef = useRef();
-
-const START_DISP = 1000;
-const END_DISP = 1999;
-const START_TN = 547350;
-const END_TN = 547440;
-const START_SERIAL = 1; // Add a starting value for the serial number
-const START_BULK = 1; // Add a starting value for the serial number
-
-const [generateNo, setGenerateNo] = useState('');
-const [generateDispatchNo, setGenerateDispatchNo] = useState('');
-const [currentSerial, setCurrentSerial] = useState('');
-const [lastBulkNumber,setLastBulkNumber] = useState('')
+  const [generateDispatchNo, setGenerateDispatchNo] = useState('');
 
   useEffect(() => {
     try {
@@ -53,46 +42,32 @@ const [lastBulkNumber,setLastBulkNumber] = useState('')
   }, []);
 
 useEffect(() => {
-  const storedDisp = parseInt(localStorage.getItem('dispNumber') || START_DISP);
-  const storedTn = parseInt(localStorage.getItem('tnNumber') || START_TN);
-  const storedSerial = parseInt(localStorage.getItem('lastTnNumber') || START_SERIAL);
-  const lastBulkNumber = parseInt(localStorage.getItem('lastBulkNumber') || START_BULK);
-  
-  updateGeneratedNumbers(storedDisp, storedTn, storedSerial,lastBulkNumber);
-}, []);
+    const initializeSerial = () => {
+      const storedSerial = localStorage.getItem('printSerialNumber');
+      if (storedSerial) {
+        const current = parseInt(storedSerial);
+        updateGeneratedNumbers(current);
+      }
+    };
+    initializeSerial();
+  }, []);
 
-const generateSerialNumber = () => {
-  const currentDisp = parseInt(localStorage.getItem('dispNumber') || START_DISP);
-  const currentTn = parseInt(localStorage.getItem('tnNumber') || START_TN);
-  const lastNumber = parseInt(localStorage.getItem('lastTnNumber') || START_SERIAL);
-  const lastBulkNumber = parseInt(localStorage.getItem('lastBulkNumber') || START_BULK);
+  const generateSerialNumber = () => {
+    const currentSerial = parseInt(localStorage.getItem('printSerialNumber') || 0)
+    const nextSerial = currentSerial >= 999999 ? 1 : currentSerial + 1; // Reset after 999999
+    updateGeneratedNumbers(nextSerial);
+  };
 
-  const nextDisp = currentDisp >= END_DISP ? START_DISP : currentDisp + 1;
-  const nextTn = currentTn >= END_TN ? START_TN : currentTn + 1;
-  const nextNumber = lastNumber + 1;
-  const nextBulkNumber = lastBulkNumber + 1;
+  const updateGeneratedNumbers = (serial) => {
+    // Format with leading zeros for 6-digit display
+    const paddedSerial = serial.toString().padStart(6, '0');
+    const newDispatchNo =` DISP${paddedSerial}`;
+    const newGenerateNo =` TN00${paddedSerial}`;
 
-  updateGeneratedNumbers(nextDisp, nextTn, nextNumber,nextBulkNumber);
-};
-
-const updateGeneratedNumbers = (disp, tn, nextNum,Bulk) => {
-  const newDispatchNo = `DISP36${disp}`;
-  const newGenerateNo = `TN00${tn}`;
-  const newSerialNo =`TN00${nextNum}`;
-  const newBulkNum = `${Bulk}`;
-
-  localStorage.setItem('dispNumber', disp.toString());
-  localStorage.setItem('tnNumber', tn.toString());
-  localStorage.setItem('lastTnNumber', nextNum.toString());
-  localStorage.setItem('lastBulkNumber', Bulk.toString());
-
-  setGenerateDispatchNo(newDispatchNo);
-  setGenerateNo(newGenerateNo);
-  setCurrentSerial(newSerialNo);
-  setLastBulkNumber(newBulkNum);
-};
-
-
+    localStorage.setItem('printSerialNumber', serial.toString());
+    setGenerateNo(newGenerateNo);
+    setGenerateDispatchNo(newDispatchNo);
+  };
 
   const convertToImage = async () => {
     if (printRef.current) {
@@ -121,21 +96,6 @@ const updateGeneratedNumbers = (disp, tn, nextNum,Bulk) => {
       setError('Nothing to print');
       return;
     }
-       const dataToSend = {
-      ...queryData,
-      dispatchNo: generateDispatchNo,
-      serialNo: currentSerial,
-      bulkNo: lastBulkNumber,
-      printTime: new Date().toISOString()
-    };
-
-    // Send data to the database
-    const response = await queryDataAPI(dataToSend);
-    
-    if (response.status !== 200 && response.status !== 201) {
-      throw new Error('Failed to save to database');
-    }
-
 
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
@@ -168,11 +128,10 @@ const updateGeneratedNumbers = (disp, tn, nextNum,Bulk) => {
    }
              
               body, h5, p {
-              font-weight:bold;
-             font-sty
+              
+            
               margin-Top:20px;
              padding:3;
-             
 }
               
             }
@@ -182,59 +141,50 @@ const updateGeneratedNumbers = (disp, tn, nextNum,Bulk) => {
               page-break-inside: avoid;
             }
               .generate-number{
-               color: rgb(87, 84, 84);
+               color: rgb(0, 0, 0);
                gap:30px;
                font-size:18px;
                
             }
               .generate-number {
-               color: rgb(87, 84, 84);
+               font-family: "DotGothic16", sans-serif;
   font-weight: 350;
   font-style: normal;
   font-size:18px;
               }
-  .serial{
- font-family: "DotGothic16", sans-serif;
-  font-weight: 750;
-  font-style: italic;
-  transform: skewX(-5deg);
-  font-size:4px
-  letter-spacing:50px;
-  gap:12px;
-}
+//   .serial{
+//  font-family: "DotGothic16", sans-serif;
+//   font-weight: 350;
+//   font-style: normal;
+// }
             .query-table {
               width: 650px;
               border-collapse: collapse;
               font-size: 8px;
               border:0.5px solid black;
               margin:right:20px
-              
                
                justtify-content:center;
             }
             .query-table td {
-              border: 1.5px solid black;
+              border: 0.5px solid black;
               padding: 3.2px; /* Reduced padding */
               line-height: 1.2;
-              font-weight:500;
               
               font-size:10px;
               color:black;
             }
               .query-table input[type="text"] {
-              
     font-size: 9px;
     color: green;
-    font-weight: bolder;
+    font-weight: bold;
     line-height: 1.2;
     padding: 4px; /* Optional: to match your td padding */
     border: 0.5px solid black; /* Optional: to match the table cell border */
 }
             .header-info p {
               margin: 2px 0;
-              font-size: 10px;
-              font-weight:normal;
-               font-weight:500;
+              font-size: 11px;
             }
           
   
@@ -257,15 +207,15 @@ const updateGeneratedNumbers = (disp, tn, nextNum,Bulk) => {
   };
 
   const renderTable = (data, isDuplicate = false) => (
-    <div className="fontc table-wrapper" style={isDuplicate ? { marginTop: '-25px' } : {}}>
-     
-      <div className='img' style={{display:'flex', marginTop:'70px',marginLeft:'452px'}} >
+    <div className="fontc table-wrapper">
+
+      <div className='img' style={{display:'flex', marginTop:'50px',marginLeft:'452px'}} >
         <div className='generatediv'>
-        <h4 style={{marginLeft:'47px',marginTop:'5px',fontSize:'14px', fontWeight:'600',letterSpacing:'1px'}} className="generate-number" >{currentSerial}</h4>
+        <h5 style={{marginLeft:'10px',marginTop:'0px'}} className="generate-number" >{generateNo}</h5>
 
         </div>
-        {currentSerial && (
-          <div style={{marginLeft:'20px',fontWeight:'500'}} >
+        {generateNo && (
+          <div style={{marginLeft:'36px'}} >
             <QRCodeSVG 
   value={generateDispatchNo  }
   size={55}
@@ -276,44 +226,34 @@ const updateGeneratedNumbers = (disp, tn, nextNum,Bulk) => {
           </div>
         )}
       </div>
-      <div style={{display:'flex',gap:'385px'}} className="header-info">
-        <p className="font-semibold" style={{ marginLeft: '0px' }}>HSN Code : {data.hsnCode || "-"}</p>
-    <p style={{ marginLeft: '-17px' }}>
-  Date & Time of Dispatch : {data.travellingDate ? 
-    new Date(data.travellingDate).toLocaleString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    }).replace(/\//g, '-')
-    .replace(',', '')
-    .replace(/\s?[AP]M$/i, '')
-    : "-"}
-    
+      <div style={{display:'flex',gap:'306px'}} className="header-info">
+        <p className="font-semibold" style={{ marginLeft: '0px' }}>HSN Code: {data.hsnCode || "-"}</p>
+      <p style={{ marginLeft: '0px' }}>
+  Date & Time of Dispatch: {(data.time && data.time
+    .replace(/\//g, '-')         
+    .replace(',', '')            
+    .replace(/ ?[AP]M/i, '')     
+    .trim()) || "-"}
 </p>
-
-
 
       </div>
       <div className='text'>
       <table className="query-table">
         <tbody className="table-body">
           <tr>
-            <td>Lessee Id : {data.lesseeId}</td>
+            <td>Lessee Id: {data.lesseeId}</td>
             <td>Minecode: {data.minecode}</td>
-            <td>Lease Area Details</td>
-            <td >Serial No : <span className='serial' style={{letterSpacing:'1px',fontSize:'8px'}} >{currentSerial}</span></td>
+            <td>Lease Area Details:</td>
+            <td >Serial No:{data.SerialNo}</td>
           </tr>
           <tr>
-            <td >Lessee Name and Address :</td>
+            <td>Lessee Name and Address:</td>
             <td>{data.lesseeName}</td>
-            <td>District Name :</td>
+            <td>District Name:</td>
             <td>{data.districtName}</td>
           </tr>
           <tr>
-            <td style={{ textAlign: 'left', verticalAlign: 'top',maxWidth:'65px'}} colSpan="2" rowSpan="3">{data.lesseeNameAddress}</td>
+            <td style={{ textAlign: 'left', verticalAlign: 'top'}} colSpan="2" rowSpan="3">{data.lesseeNameAddress}</td>
             <td>Taluk Name</td>
             <td>{data.Taluk}</td>
           </tr>
@@ -322,46 +262,46 @@ const updateGeneratedNumbers = (disp, tn, nextNum,Bulk) => {
             <td>{data.village}</td>
           </tr>
           <tr>
-            <td>SF.NoExtent :</td>
+            <td>SF.NoExtent</td>
             <td>{data.sfNoExtent}</td>
           </tr>
           <tr>
-            <td>Mineral Name : {data.mineralName}</td>
-            <td>Bulk Permit No : {lastBulkNumber}</td>
+            <td>Mineral Name: {data.mineralName}</td>
+            <td>Bulk Permit No: {data.bulkPermitNo}</td>
             <td>Classification</td>
             <td>{data.classification}</td>
           </tr>
           <tr>
-            <td colSpan="2">Order Ref : {data.orderRef}</td>
-            <td>Lease Period :</td>
+            <td colSpan="2">Order Ref: {data.orderRef}</td>
+            <td>Lease Period:</td>
             <td>{data.leasePeriod}</td>
           </tr>
           <tr>
-            <td>Dispatch Slip No :</td>
-            <td>{generateDispatchNo} </td>
+            <td>Dispatch Slip No:</td>
+            <td>{data.dispatchNo} {generateDispatchNo} </td>
             <td>Within Tamil Nadu</td>
             <td>{data.withinTamilNadu}</td>
           </tr>
           <tr>
-            <td>Delivered To :</td>
+            <td>Delivered To:</td>
             <td colSpan="3">{data.deliveredTo}</td>
           </tr>
           <tr>
-            <td>Vehicle No :</td>
+            <td>Vehicle No:</td>
             <td>{data.vehicleNo}</td>
-            <td colSpan="2">Destination Address :</td>
+            <td colSpan="2">Destination Address:</td>
           </tr>
           <tr>
-            <td>Vehicle Type :</td>
+            <td>Vehicle Type:</td>
             <td>{data.vehicleType}</td>
             <td  style={{ textAlign: 'left', verticalAlign: 'top'}}  colSpan="2" rowSpan="4">{data.destinationAddress}</td>
           </tr>
           <tr>
-            <td>Total Distance (in Kms) :</td>
+            <td>Total Distance (in Kms):</td>
             <td>{data.totalDistance}</td>
           </tr>
          <tr>
-  <td>Travelling Date :</td>
+  <td>Travelling Date:</td>
   <td>
     {data.travellingDate
       ? new Date(data.travellingDate).toLocaleString('en-GB', {
@@ -404,29 +344,29 @@ const updateGeneratedNumbers = (disp, tn, nextNum,Bulk) => {
 </tr>
 
           <tr>
-            <td>Quantity (in MT) :</td>
+            <td>Quantity (in MT):</td>
             <td>{data.quantity}</td>
-            <td>Driver Name :</td>
+            <td>Driver Name:</td>
             <td>{data.driverName}</td>
           </tr>
           <tr>
-            <td>Driver License No :</td>
+            <td>Driver License No:</td>
             <td>{data.driverLicenseNo}</td>
             <td>Via</td>
             <td>{data.via}</td>
           </tr>
           <tr>
-            <td>Driver Phone No :</td>
+            <td>Driver Phone No:</td>
             <td>{data.driverPhoneNo}</td>
-            <td>Lessee / Authorized Person Name :</td>
+            <td>Lessee / Authorized Person Name:</td>
             <td>{data.authorizedPersonName}</td>
           </tr>
           <tr>
-            <td>Driver Signature :</td>
+            <td>Driver Signature:</td>
             <td>
              
             </td>
-            <td>Signature of AD / DD :</td>
+            <td>Signature of AD / DD:</td>
             <td>
               {data.signature ? 
                 <img src={data.signature} alt="AD Signature" style={{ maxHeight: '30px' }} /> : 
@@ -460,7 +400,6 @@ const updateGeneratedNumbers = (disp, tn, nextNum,Bulk) => {
 
       {/* Action buttons */}
       <div className="print-button-container no-print">
-      <div className="print-button-container no-print">
         <button className="print-button" onClick={handlePrint}>
           🖨 Print
         </button>
@@ -472,7 +411,6 @@ const updateGeneratedNumbers = (disp, tn, nextNum,Bulk) => {
         </button>
       </div>
 
-
       {/* Image preview */}
       {imageUrl && (
         <div className="image-preview no-print">
@@ -483,7 +421,6 @@ const updateGeneratedNumbers = (disp, tn, nextNum,Bulk) => {
           </a>
         </div>
       )}
-    </div>
     </div>
   );
 }
