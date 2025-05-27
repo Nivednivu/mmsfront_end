@@ -1,20 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './UserList.css'; // Optional: Add CSS for table/form layout
+import './UserList.css';
+import { getLastEmployeeAPI } from '../../Server/allAPI';
 
 function UserList() {
   const [latestDispatch, setLatestDispatch] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedData, setEditedData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedData = JSON.parse(localStorage.getItem('dispatchData')) || [];
-    if (storedData.length > 0) {
-      const lastEntry = storedData[storedData.length - 1];
-      setLatestDispatch(lastEntry);
-      setEditedData(lastEntry);
-    }
+    const fetchLatestEntry = async () => {
+      try {
+        const response = await getLastEmployeeAPI();
+        console.log("API Response:", response);
+        
+        // The response.data contains the single dispatch object directly
+        if (response.data && typeof response.data === 'object') {
+          setLatestDispatch(response.data);
+          setEditedData(response.data);
+        } else {
+          throw new Error("No data received");
+        }
+      } catch (err) {
+        console.error("Failed to fetch latest entry:", err);
+        setError("Failed to load data. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLatestEntry();
   }, []);
 
   const handleInputChange = (field, value) => {
@@ -26,32 +44,44 @@ function UserList() {
 
   const handleEditToggle = () => setIsEditing(true);
 
-  const handleSave = () => {
-    const storedData = JSON.parse(localStorage.getItem('dispatchData')) || [];
-    if (storedData.length > 0) {
-      storedData[storedData.length - 1] = editedData;
-      localStorage.setItem('dispatchData', JSON.stringify(storedData));
-      setLatestDispatch(editedData);
+  const handleSave = async () => {
+    try {
+      // You'll need to implement an update API endpoint
+      // const response = await updateDispatchAPI(editedData._id, editedData);
+      // Then refresh the data
+      // fetchLatestEntry();
       setIsEditing(false);
+    } catch (err) {
+      console.error("Failed to update entry:", err);
+      setError("Failed to update entry. Please try again.");
     }
   };
 
   const handleView = () => {
-    localStorage.setItem('viewDispatch', JSON.stringify(latestDispatch));
-    navigate('/userview');
+    navigate('/userview', { state: { dispatchData: latestDispatch } });
   };
 
   const renderCell = (field) => {
+    if (!latestDispatch) return 'N/A';
+    
     return isEditing ? (
       <input
         type="text"
-        value={editedData[field]}
+        value={editedData[field] || ''}
         onChange={(e) => handleInputChange(field, e.target.value)}
       />
     ) : (
-      latestDispatch[field]
+      latestDispatch[field] || 'N/A'
     );
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="error-message">{error}</div>;
+  }
 
   return (
     <div className="user-list-container">
@@ -81,30 +111,27 @@ function UserList() {
               </thead>
               <tbody>
                 <tr>
-                  {[
-                    'deliveredTo',
-                    'vehicleNo',
-                    'vehicleType',
-                    'totalDistance',
-                    'travellingDate',
-                    'requiredTime',
-                    'quantity',
-                    'driverName',
-                    'driverPhoneNo',
-                    'driverLicenseNo',
-                    'destinationAddress'
-                  ].map(field => (
-                    <td key={field}>{renderCell(field)}</td>
-                  ))}
+                  <td>{renderCell('deliveredTo')}</td>
+                  <td>{renderCell('vehicleNo')}</td>
+                  <td>{renderCell('vehicleType')}</td>
+                  <td>{renderCell('totalDistance')}</td>
+                  <td>{renderCell('travellingDate')}</td>
+                  <td>{renderCell('requiredTime')}</td>
+                  <td>{renderCell('quantity')}</td>
+                  <td>{renderCell('driverName')}</td>
+                  <td>{renderCell('driverPhoneNo')}</td>
+                  <td>{renderCell('driverLicenseNo')}</td>
+                  <td>{renderCell('destinationAddress')}</td>
                   <td>
                     {latestDispatch.driverSignature ? (
-                      <img
-                        src={latestDispatch.driverSignature}
-                        alt="Signature"
-                        style={{ height: '50px' }}
+                      <img 
+                        src={latestDispatch.driverSignature} 
+                        alt="Signature" 
+                        width="100" 
+                        height="20" 
                       />
                     ) : (
-                      'N/A'
+                      <span>No image</span>
                     )}
                   </td>
                   <td>{renderCell('via')}</td>

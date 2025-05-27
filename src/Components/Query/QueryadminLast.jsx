@@ -1,47 +1,50 @@
 import React, { useEffect, useState } from 'react';
 import './QueryAdminList.css';
+import { adminAddQuaeyLastAPI } from '../../Server/allAPI';
 
 function QueryadminLast() {
   const [lastEntry, setLastEntry] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+
+  
   useEffect(() => {
-    const loadLastEntry = () => {
+    const fetchLastEntry = async () => {
       try {
         setLoading(true);
-        const storedData = localStorage.getItem('leaseEntries');
+        setError(null);
         
-        if (!storedData) {
-          setError("No lease entries found in storage");
-          return;
+        const response = await adminAddQuaeyLastAPI();
+        console.log("API Response:", response);
+
+        if (!response?.data?.success) {
+          throw new Error(response?.data?.message || "Failed to fetch data");
         }
 
-        const parsedEntries = JSON.parse(storedData);
-        
-        // Filter out empty entries (optional)
-        const validEntries = parsedEntries.filter(entry => 
-          entry.hsnCode && entry.lesseeId && entry.minecode
+        const entry = response.data.data;
+
+        // Validate required fields exist and aren't empty
+        const requiredFields = ['hsnCode', 'lesseeId', 'minecode'];
+        const missingFields = requiredFields.filter(
+          field => !entry[field] || entry[field] === ""
         );
 
-        if (validEntries.length === 0) {
-          setError("No valid lease entries found");
-          return;
+        if (missingFields.length > 0) {
+          throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
         }
 
-        // Get the last valid entry
-        const lastValidEntry = validEntries[validEntries.length - 1];
-        setLastEntry(lastValidEntry);
-        
+        setLastEntry(entry);
       } catch (err) {
-        console.error("Error loading last entry:", err);
-        setError("Failed to load lease data");
+        console.error("Fetch error:", err);
+        setError(err.message);
+        setLastEntry(null);
       } finally {
         setLoading(false);
       }
     };
 
-    loadLastEntry();
+    fetchLastEntry();
   }, []);
 
   if (loading) {
@@ -55,6 +58,18 @@ function QueryadminLast() {
   if (!lastEntry) {
     return <div className="admin-view-container"><p>No recent lease entry available.</p></div>;
   }
+if (loading) {
+    return <div className="admin-view-container"><p>Loading last entry...</p></div>;
+  }
+
+  if (error) {
+    return <div className="admin-view-container"><p className="error-message">{error}</p></div>;
+  }
+
+  if (!lastEntry) {
+    return <div className="admin-view-container"><p>No recent lease entry available.</p></div>;
+  }
+console.log(lastEntry);
 
   return (
     <div className="admin-view-container">
@@ -73,11 +88,13 @@ function QueryadminLast() {
           <span className="detail-value">{lastEntry.minecode}</span>
         </div>
         
-        
-
         <div className="detail-row">
-          <span className="detail-label"> SerialNo:</span>
+          <span className="detail-label">SerialNo:</span>
           <span className="detail-value">{lastEntry.SerialNo}</span>
+        </div>
+        <div className="detail-row">
+          <span className="detail-label">dispatchNO:</span>
+          <span className="detail-value">{lastEntry.dispatchNO}</span>
         </div>
         <div className="detail-row">
           <span className="detail-label">Lessee Address:</span>
@@ -85,7 +102,7 @@ function QueryadminLast() {
         </div>
         <div className="detail-row">
           <span className="detail-label">Area Details:</span>
-          <span className="detail-value">{lastEntry.lesseeAreaDetails}</span>
+          <span className="detail-value">{lastEntry.lesseeAreaDetails || 'N/A'}</span>
         </div>
         <div className="detail-row">
           <span className="detail-label">District:</span>
@@ -119,20 +136,28 @@ function QueryadminLast() {
           <span className="detail-label">Bulk Permit No:</span>
           <span className="detail-value">{lastEntry.bulkPermitNo}</span>
         </div>
-
         
         <div className="detail-row">
           <span className="detail-label">Signature:</span>
-                  <img src={lastEntry.signature} alt="Signature" width="40"  height="20" />
+          {lastEntry.signature ? (
+            <img 
+              src={lastEntry.signature} 
+              alt="Signature" 
+              className="signature-image"
+            />
+          ) : (
+            <span className="no-signature">No signature available</span>
+          )}
         </div>
-<div className="navigation-container">
-  <button className="dashboard-button">
-    <a href="/side" className="dashboard-link">Back to Dashboard</a>
-  </button>
-</div>      </div>
+        
+        <div className="navigation-container">
+          <button className="dashboard-button">
+            <a href="/side" className="dashboard-link">Back to Dashboard</a>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
 
 export default QueryadminLast;
-

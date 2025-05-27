@@ -23,6 +23,9 @@ import QueryAdminList from './Components/Query/QueryAdminList';
 import UserView from './Components/User/UserView';
 import QueryadminLast from './Components/Query/QueryadminLast';
 import QRCodeGenerator from './Components/QrCode/QRCodeGenerator';
+import UserLast from './Components/User/UserLast';
+import Quaryyy from './Components/Quaryyy';
+import QueryLastData from './Components/QrCode/QueryLastData';
 
 
 function App() {
@@ -53,6 +56,9 @@ function App() {
       <Route path='/adminqview/:id' element={<QueryAdminView/>  }  />
       <Route path='/userview' element={<UserView/>  }  />
       <Route path='/qr' element={<QRCodeGenerator/>  }  />
+      <Route path='/lastuser' element={<UserLast/>  }  />
+      <Route path='/qu' element={<Quaryyy/>  }  />
+      <Route path='/q' element={<QueryLastData/>  }  />
 
       {/* <Route path="/vehicle-manag/:id" element={<VehicleForm />} /> */}
 

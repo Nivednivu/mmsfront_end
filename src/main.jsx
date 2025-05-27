@@ -4,11 +4,18 @@ import App from './App';
 import './index.css'; // Import Tailwind
 import '@fortawesome/fontawesome-free/css/all.min.css'; // Import Font Awesome
 import { BrowserRouter } from 'react-router-dom';
+import { SerialNumberProvider } from './context/SerialNumberContext';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-    <App />
+
+            <SerialNumberProvider>
+                  <App />
+
+          {/* Other components */}
+        </SerialNumberProvider>
+    
     </BrowserRouter>
   </React.StrictMode>
 );

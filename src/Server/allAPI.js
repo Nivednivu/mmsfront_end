@@ -37,15 +37,35 @@ export const vehiclesupdateAPI = async (id, formData) => {
       export const resendOtpAPI = async (reqBody) => {
         return await commonAPI("POST", `${SERVER_URL}/sendotp`,reqBody);
       };      
+
       export const resetPasswordAPI = async (reqBody) => {
         return await commonAPI("POST", `${SERVER_URL}/resetpassword`,reqBody);
       };      
 
     
-      export const queryDataAPI = async (reqBody) => {
-        return await commonAPI("POST", `${SERVER_URL}/query`,reqBody);
-      };      
+export const queryDataAPI = async (reqBody) => {
+  return await commonAPI("POST", `${SERVER_URL}/query`, reqBody);
+};      
 
+export const getLastSerialNumberAPI = async () => {
+  return await commonAPI("GET", `${SERVER_URL}/serial`);
+};
+
+
+export const updateSerialNumberAPI = async (reqBody) => {
+  return await commonAPI("POST", `${SERVER_URL}/queryserialno`, reqBody);
+};
+// export const queryLastData= async (reqBody) => {
+//   return await commonAPI("GET", `${SERVER_URL}/querylast`, reqBody);
+// };
+
+export const getLastDispatchNumberAPI = async () => {
+  return await commonAPI("GET", `${SERVER_URL}/dispatch`);
+};
+
+export const updateDispatchNumberAPI = async (reqBody) => {
+  return await commonAPI("POST", `${SERVER_URL}/dispatchno`, reqBody);
+};
       export const queryGetAPI = async (reqBody) => {
         return await commonAPI("GET", `${SERVER_URL}/queryget`,reqBody);
       };      
@@ -70,6 +90,9 @@ export const adminAddQuaeyLastAPI = async (reqBody) => {
 export const adminAddQuaeyByIdAPI = async (id) => {
   return await commonAPI("GET", `${SERVER_URL}/adminadd/${id}`,);
 };
+
+
+
 export const adminQuaeyIdupdateAPI = async (id) => {
   return await commonAPI("PUT", `${SERVER_URL}/adminupdate/${id}`,);
 };
@@ -87,4 +110,9 @@ export const employeeAddtAPI = async (reqBody) => {
     
 export const employeeGetAPI = async (id) => {
   return await commonAPI("GET", `${SERVER_URL}/employeeget/${id}`);
+};
+
+
+export const getLastEmployeeAPI = async () => {
+  return await commonAPI("GET", `${SERVER_URL}/employee/last`);
 };

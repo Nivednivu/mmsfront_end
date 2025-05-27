@@ -2,77 +2,119 @@ import React, { useState, useEffect, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { toPng } from 'html-to-image';
 import './UserView.css';
+import {
+  adminAddQuaeyLastAPI,
+  getLastEmployeeAPI,
+  queryDataAPI,
+  getLastSerialNumberAPI
+} from '../../Server/allAPI';
 
 function UserView() {
   const [queryData, setQueryData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [generateNo, setGenerateNo] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const printRef = useRef();
-  const [generateDispatchNo, setGenerateDispatchNo] = useState('');
 
-  useEffect(() => {
-    try {
-      const leaseData = JSON.parse(localStorage.getItem('leaseEntries') || '[]');
-      const dispatchData = JSON.parse(localStorage.getItem('viewDispatch') || '{}');
+const [serialno, setSerialNo] = useState(null);
+  const [manualSerialNo,setManualSerialNo] =useState()
+  const [currentSerial, setCurrentSerial] = useState('');
+  const [latestQuery, setLatestQuery] = useState(null);
 
-      const validLease = leaseData.filter(entry =>
-        entry.hsnCode && entry.lesseeId && entry.minecode
-      );
 
-      if (validLease.length === 0 || !dispatchData.vehicleNo) {
-        setError('Incomplete lease or dispatch data');
-        return;
-      }
+   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      const combinedData = {
-        ...validLease[validLease.length - 1],
-        ...dispatchData,
-        time: new Date().toLocaleString(),
-      };
+        const [leaseResponse, dispatchResponse] = await Promise.all([
+          adminAddQuaeyLastAPI(),
+          getLastEmployeeAPI(),
+        ]);
 
-      setQueryData(combinedData);
-    } catch (err) {
-      console.error('Data loading error:', err);
-      setError('Failed to load data');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+        const leaseData = leaseResponse.data?.data || leaseResponse.data;
+        const dispatchData = dispatchResponse.data;
+        console.log(leaseData.SerialNo);
+        
+        setManualSerialNo(leaseData.SerialNo)
+    
+        if (!leaseData || !dispatchData) throw new Error('Missing required data');
 
-useEffect(() => {
-    const initializeSerial = () => {
-      const storedSerial = localStorage.getItem('printSerialNumber');
-      if (storedSerial) {
-        const current = parseInt(storedSerial);
-        updateGeneratedNumbers(current);
+        const combinedData = {
+          ...leaseData,
+          ...dispatchData,
+          SerialNo: manualSerialNo || serialno,
+          time: new Date().toLocaleString(),
+        };
+
+        setQueryData(combinedData);
+      } catch (err) {
+        console.error('Fetch error:', err);
+        setError('Failed to load data');
+      } finally {
+        setLoading(false);
       }
     };
-    initializeSerial();
+
+    fetchData();
   }, []);
 
-  const generateSerialNumber = () => {
-    const currentSerial = parseInt(localStorage.getItem('printSerialNumber') || 0)
-    const nextSerial = currentSerial >= 999999 ? 1 : currentSerial + 1; // Reset after 999999
-    updateGeneratedNumbers(nextSerial);
-  };
+    useEffect(() => {
+    const fetchLatestQuery = async () => {
+      try {
+        const response = await getLastSerialNumberAPI();
+        if (response.data.success) {
+          const data = response.data.data;
+          setLatestQuery(data);
 
-  const updateGeneratedNumbers = (serial) => {
-    // Format with leading zeros for 6-digit display
-    const paddedSerial = serial.toString().padStart(6, '0');
-    const newDispatchNo =` DISP${paddedSerial}`;
-    const newGenerateNo =` TN00${paddedSerial}`;
+          const nextSerialNo = parseInt(data.SerialNo, 10) + 1;
+          setSerialNo(nextSerialNo); // set it as state
+          console.log("Next Serial No:", nextSerialNo);
+        } else {
+          console.error('No data:', response.data.message);
+        }
+      } catch (error) {
+        console.error('Error fetching latest query:', error);
+      }
+    };
 
-    localStorage.setItem('printSerialNumber', serial.toString());
-    setGenerateNo(newGenerateNo);
-    setGenerateDispatchNo(newDispatchNo);
-  };
+    fetchLatestQuery();
+
+  }, []);
+
+      
+
+// const finalSerialNo = manualSerialNo || serialno;
+
+const handleAfterPrint = async () => {
+  try {
+    const current = parseInt(manualSerialNo || serialno || 0, 10);
+    const updatedSerial = current + 1;
+
+    const newEntry = {
+      ...queryData,
+      SerialNo: current,
+      time: new Date().toLocaleString()
+    };
+
+    // Send current serial to DB
+    await queryDataAPI(newEntry);
+    console.log("Data sent to backend:", newEntry);
+
+    // Now prepare for next serial
+    setSerialNo(updatedSerial);
+    setManualSerialNo('');
+    setCurrentSerial(current);
+  } catch (err) {
+    console.error('Failed to update after print:', err);
+  }
+};
+
 
   const convertToImage = async () => {
     if (printRef.current) {
       try {
-        generateSerialNumber();
         await new Promise(resolve => setTimeout(resolve, 100));
         
         const dataUrl = await toPng(printRef.current, {
@@ -88,12 +130,12 @@ useEffect(() => {
     }
   };
 
-  const handlePrint = async () => {
-    generateSerialNumber();
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    if (!printRef.current) {
-      setError('Nothing to print');
+
+const handlePrint = async () => {
+  try {
+    // First ensure we have data to print
+    if (!printRef.current || !queryData) {
+      setError('No data available to print');
       return;
     }
 
@@ -105,7 +147,7 @@ useEffect(() => {
 
     printWindow.document.write(`
       <html>
-        <head>
+<head>
           <title>Print Document</title>
           <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
           <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -128,10 +170,11 @@ useEffect(() => {
    }
              
               body, h5, p {
-              
-            
+              font-weight:bold;
+             font-sty
               margin-Top:20px;
              padding:3;
+             
 }
               
             }
@@ -141,83 +184,113 @@ useEffect(() => {
               page-break-inside: avoid;
             }
               .generate-number{
-               color: rgb(0, 0, 0);
-               gap:30px;
+               color: rgb(87, 84, 84);
+               gap:20px;
                font-size:18px;
                
             }
               .generate-number {
-               font-family: "DotGothic16", sans-serif;
+               color: rgb(87, 84, 84);
   font-weight: 350;
   font-style: normal;
   font-size:18px;
               }
-//   .serial{
-//  font-family: "DotGothic16", sans-serif;
-//   font-weight: 350;
-//   font-style: normal;
-// }
+  .serial{
+ font-family: "DotGothic16", sans-serif;
+  font-weight: 750;
+  font-style: italic;
+  transform: skewX(-5deg);
+  font-size:4px
+  letter-spacing:50px;
+  gap:12px;
+}
             .query-table {
-              width: 650px;
+              width: 623px;
               border-collapse: collapse;
               font-size: 8px;
               border:0.5px solid black;
               margin:right:20px
+              
                
                justtify-content:center;
             }
             .query-table td {
-              border: 0.5px solid black;
+              border: 1.5px solid black;
               padding: 3.2px; /* Reduced padding */
               line-height: 1.2;
+              font-weight:500;
               
               font-size:10px;
               color:black;
             }
               .query-table input[type="text"] {
+              
     font-size: 9px;
     color: green;
-    font-weight: bold;
+    font-weight: bolder;
     line-height: 1.2;
     padding: 4px; /* Optional: to match your td padding */
     border: 0.5px solid black; /* Optional: to match the table cell border */
 }
             .header-info p {
               margin: 2px 0;
-              font-size: 11px;
+              font-size: 10px;
+              font-weight:normal;
+               font-weight:500;
             }
           
   
           </style>
-        </head>
-        <body>
+        </head>        <body>
           <div class="print-table-container">
-            ${printRef.current.innerHTML}
-          </div>
+  ${printRef.current.innerHTML.replace(
+            /SerialNo:.*?(<span[^>]*>)(.*?)(<\/span>)/,
+            `SerialNo: $1${currentSerial}$3`
+          )}
+                    </div>
           <script>
-            setTimeout(() => {
-              window.print();
-              window.close();
-            }, 200);
+            window.onload = function() {
+              setTimeout(() => {
+                window.print();
+                // Only after printing is done, notify parent window
+                window.opener.postMessage('printCompleted', '*');
+                window.close();
+              }, 500);
+            };
           </script>
         </body>
       </html>
     `);
     printWindow.document.close();
-  };
+
+    // Listen for print completion message
+    window.addEventListener('message', (e) => {
+      if (e.data === 'printCompleted') {
+        // Only now increment the serial number
+        handleAfterPrint();
+      }
+    });
+
+  } catch (err) {
+    console.error('Print error:', err);
+    setError('Failed to print document');
+  }
+};
+
+
 
   const renderTable = (data, isDuplicate = false) => (
     <div className="fontc table-wrapper">
 
       <div className='img' style={{display:'flex', marginTop:'50px',marginLeft:'452px'}} >
         <div className='generatediv'>
-        <h5 style={{marginLeft:'10px',marginTop:'0px'}} className="generate-number" >{generateNo}</h5>
+        <h4 style={{marginLeft:'10px',marginTop:'0px'}} className="generate-number" > {serialno}</h4>
 
         </div>
-        {generateNo && (
-          <div style={{marginLeft:'36px'}} >
+        {serialno && (
+          <div style={{marginLeft:'23px'}} >
             <QRCodeSVG 
-  value={generateDispatchNo  }
+  value={serialno }
   size={55}
   level="H"
 
@@ -226,8 +299,8 @@ useEffect(() => {
           </div>
         )}
       </div>
-      <div style={{display:'flex',gap:'306px'}} className="header-info">
-        <p className="font-semibold" style={{ marginLeft: '0px' }}>HSN Code: {data.hsnCode || "-"}</p>
+      <div style={{display:'flex',gap:'385px'}} className="header-info">
+        <p className="font-semibold" style={{ marginLeft: '-27px' }}>HSN Code: {data.hsnCode || "-"}</p>
       <p style={{ marginLeft: '0px' }}>
   Date & Time of Dispatch: {(data.time && data.time
     .replace(/\//g, '-')         
@@ -244,7 +317,7 @@ useEffect(() => {
             <td>Lessee Id: {data.lesseeId}</td>
             <td>Minecode: {data.minecode}</td>
             <td>Lease Area Details:</td>
-            <td >Serial No:{data.SerialNo}</td>
+            <td >Serial No:{data.SerialNo}{serialno}</td>
           </tr>
           <tr>
             <td>Lessee Name and Address:</td>
@@ -278,7 +351,7 @@ useEffect(() => {
           </tr>
           <tr>
             <td>Dispatch Slip No:</td>
-            <td>{data.dispatchNo} {generateDispatchNo} </td>
+            <td>{data.dispatchNo}  </td>
             <td>Within Tamil Nadu</td>
             <td>{data.withinTamilNadu}</td>
           </tr>
@@ -425,4 +498,4 @@ useEffect(() => {
   );
 }
 
-export default UserView;
+export default UserView
