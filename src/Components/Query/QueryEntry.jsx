@@ -1,11 +1,10 @@
-
 import React, { useEffect, useState } from 'react';
 import './QueryEntry.css';
-import { adminAddQuaeyAPI } from '../../Server/allAPI';
+import { adminAddQuaeyAPI, getLastSerialNumberAPI } from '../../Server/allAPI';
 import { useNavigate } from 'react-router-dom';
 
 function QueryEntry() {
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     hsnCode: '',
@@ -13,7 +12,9 @@ const navigate = useNavigate();
     minecode: '',
     lesseeName: '',
     SerialNo: '',
-    dispatchNo:'',
+    SerialStartNo: '',
+    SerialEndNo:'',
+    dispatchNo: '',
     lesseeNameAddress: '',
     districtName: '',
     Taluk: '',
@@ -27,19 +28,60 @@ const navigate = useNavigate();
     signature: '',
   });
 
-  // Initialize or get the last used TN number from localStorage
+  // Fetch latest Serial No on page load and set both SerialNo and dispatchNo
+  useEffect(() => {
+    const fetchSerialNo = async () => {
+      try {
+        const response = await getLastSerialNumberAPI();
+        if (response.status === 200) {
+          const lastSerial = parseInt(response.data.data.SerialNo) || 0;
+          const newSerial = lastSerial + 1;
+          const lastDispatch = parseInt(response.data.data.dispatchNo) || 0;
+          const newDispatch = lastDispatch + 1;
+          setFormData(prev => ({
+            ...prev,
+            SerialNo: newSerial.toString(),
+            dispatchNo: newDispatch.toString(),
+          }));
+        } else {
+          console.warn("No existing serial number found.");
+          setFormData(prev => ({
+            ...prev,
+            SerialNo: '1',
+            dispatchNo: '1',
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching serial number:", error);
+        setFormData(prev => ({
+          ...prev,
+          SerialNo: '1',
+          dispatchNo: '1',
+        }));
+      }
+    };
+
+    fetchSerialNo();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
-    
+
+    setFormData(prev => {
+      if (name === 'SerialNo') {
+        return {
+          ...prev,
+          SerialNo: value,
+          dispatchNo: value,
+        };
+      } else {
+        return {
+          ...prev,
+          [name]: value,
+        };
+      }
+    });
   };
-
-
-
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -59,47 +101,26 @@ const navigate = useNavigate();
     e.preventDefault();
 
     try {
-      // If manual entry exists, use that as base for next number
+      // Create a copy of formData and decrement SerialNo and dispatchNo by 1
+      const submissionData = {
+        ...formData,
+        SerialNo: (parseInt(formData.SerialNo) - 1).toString(),
+        dispatchNo: (parseInt(formData.dispatchNo) - 1).toString()
+      };
 
-      const response = await adminAddQuaeyAPI(formData);
+      const response = await adminAddQuaeyAPI(submissionData);
 
       if (response.status === 201) {
-
-        alert('Data submitted and saved locally!');
+        alert("Successfully Submitted Data");
         navigate('/userdispatch');
-        
-        // Reset form but keep the serial number generation sequence
-        // setFormData({
-        //   ...formData,
-        //   hsnCode: '',
-        //   lesseeId: '',
-        //   minecode: '',
-        //   SerialNo:'',
-        //   lesseeName: '',
-        //   lesseeNameAddress: '',
-        //   districtName: '',
-        //   Taluk: '',
-        //   village: '',
-        //   sfNoExtent: '',
-        //   classification: '',
-        //   leasePeriod: '',
-        //   withinTamilNadu: '',
-        //   mineralName: '',
-        //   bulkPermitNo: '',
-        //   signature: '',
-        //   // Keep SerialNo for next auto-generation
-        // });
       } else {
         alert('Submission failed. Please check your data.');
       }
     } catch (error) {
       console.error('Submission Error:', error);
-      alert('Error occurred while submitting. Check console for details.');
+      alert('Error occurred while submitting.');
     }
   };
-console.log(formData);
-
-  
 
   return (
     <div className="lease-form-container">
@@ -129,60 +150,88 @@ console.log(formData);
             </div>
 
             <div>
-              <label>Lessee  Address:</label>
-              <input style={{height:'80px'}} name="lesseeNameAddress" value={formData.lesseeNameAddress} onChange={handleChange} />
+              <label>Lessee Address:</label>
+              <textarea 
+                style={{height:'80px'}} 
+                name="lesseeNameAddress" 
+                value={formData.lesseeNameAddress} 
+                onChange={handleChange} 
+              />
             </div>
+
             <div>
               <label>Mineral Name:</label>
               <input type="text" name="mineralName" value={formData.mineralName} onChange={handleChange} />
             </div>
 
-
-  <div>
+            <div>
               <label>Bulk Permit No:</label>
               <input 
-                type="text"  name="bulkPermitNo"   value={formData.bulkPermitNo}      onChange={handleChange} 
+                type="text"  
+                name="bulkPermitNo"   
+                value={formData.bulkPermitNo}      
+                onChange={handleChange} 
               />
             </div>
 
+              <div className="range-group">
+                <div>
+                  <label>Start Serial Number:</label>
+                  <input
+                    type="number"
+                    name="SerialStartNo"
+                    value={formData.SerialStartNo}
+                    onChange={handleChange}
+                    min="1"
+                    required
+                  />
+                </div>
+                <div>
+                  <label>End Serial Number:</label>
+                  <input
+                    type="number"
+                    name="SerialEndNo"
+                    value={formData.SerialEndNo}
+                    onChange={handleChange}
+                    min={formData.SerialNo}
+                  />
+                </div>
+              </div>
+                <div>
+                  <label> Serial Number:</label>
+                  <input
+                    type="number"
+                    name="SerialNo"
+                    value={formData.SerialNo}
+                    onChange={handleChange}
+                    min={formData.SerialNo}
+                  />
+                </div>
 
-      <div>
-              <label>Serial No:</label>
-              <input 
-                type="text"  name="SerialNo" value={formData.SerialNo}       onChange={handleChange} 
-              />
-            </div>
 
-      <div>
+            <div>
               <label>Dispatch No:</label>
               <input 
-                type="text"  name="dispatchNo" value={formData.dispatchNo}       onChange={handleChange} 
+                type="text"  
+                name="dispatchNo" 
+                value={formData.dispatchNo}       
+                onChange={handleChange} 
               />
             </div>
-                      {/* <div>
-
-
-              <label>Serial No:</label>
-              <input type="text" name="SerialNo" value={formData.SerialNo} onChange={handleChange} />
-            </div>
- */}
           </div>
 
-
           {/* RIGHT COLUMN */}
-          
-
           <div className="form-column">
-                        <div>
+            <div>
               <label>District Name:</label>
               <input type="text" name="districtName" value={formData.districtName} onChange={handleChange} />
             </div>
 
             <div>
               <label>Taluk Name</label>
-             <input type="text" name="Taluk" value={formData.Taluk} onChange={handleChange} />
-
+              <input type="text" name="Taluk" value={formData.Taluk} onChange={handleChange} />
             </div>
+
             <div>
               <label>Village:</label>
               <input type="text" name="village" value={formData.village} onChange={handleChange} />
@@ -203,8 +252,6 @@ console.log(formData);
               <input type="text" name="leasePeriod" value={formData.leasePeriod} onChange={handleChange} />
             </div>
 
-          
-
             <div>
               <label>Within Tamil Nadu:</label>
               <select name="withinTamilNadu" value={formData.withinTamilNadu} onChange={handleChange}>
@@ -213,10 +260,6 @@ console.log(formData);
                 <option value="No">No</option>
               </select>
             </div>
-
-
-
-
 
             <div>
               <label>Signature</label>

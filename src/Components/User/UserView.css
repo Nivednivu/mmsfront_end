@@ -1,5 +1,6 @@
 /* Screen styles */
 .container {
+   
   max-width: 800px;
   margin: 20px ;
 
@@ -22,6 +23,7 @@
 /* Print optimization */
 @media print {
   body {
+    position: fixed;
     zoom: 85%; /* Slightly shrink content */
    
   }

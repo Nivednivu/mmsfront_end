@@ -52,8 +52,8 @@ export const getLastSerialNumberAPI = async () => {
 };
 
 
-export const updateSerialNumberAPI = async (reqBody) => {
-  return await commonAPI("POST", `${SERVER_URL}/queryserialno`, reqBody);
+export const updateSerialNumberAPI = async () => {
+  return await commonAPI("POST", `${SERVER_URL}/queryserialno`);
 };
 // export const queryLastData= async (reqBody) => {
 //   return await commonAPI("GET", `${SERVER_URL}/querylast`, reqBody);
@@ -93,10 +93,10 @@ export const adminAddQuaeyByIdAPI = async (id) => {
 
 
 
-export const adminQuaeyIdupdateAPI = async (id) => {
-  return await commonAPI("PUT", `${SERVER_URL}/adminupdate/${id}`,);
+export const adminQuaeyIdupdateAPI = async (id, updatedData) => {
+  return await commonAPI("PUT", `${SERVER_URL}/adminupdate/${id}`, updatedData);
 };
-    
+
 
 export const adminDeleteQueryByIdAPI = async (id) => {
   return await commonAPI("DELETE", `${SERVER_URL}/admin/delete/${id}`);

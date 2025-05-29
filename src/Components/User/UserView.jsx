@@ -3,11 +3,11 @@ import { QRCodeSVG } from 'qrcode.react';
 import { toPng } from 'html-to-image';
 import './UserView.css';
 import {
-  adminAddQuaeyLastAPI,
-  getLastEmployeeAPI,
-  queryDataAPI,
-  getLastSerialNumberAPI
+  getLastSerialNumberAPI,
+  adminQuaeyIdupdateAPI,
+  adminAddQuaeyLastAPI
 } from '../../Server/allAPI';
+
 
 function UserView() {
   const [queryData, setQueryData] = useState(null);
@@ -16,39 +16,29 @@ function UserView() {
   const [imageUrl, setImageUrl] = useState('');
   const printRef = useRef();
 
-const [serialno, setSerialNo] = useState(null);
-  const [manualSerialNo,setManualSerialNo] =useState()
-  const [currentSerial, setCurrentSerial] = useState('');
-  const [latestQuery, setLatestQuery] = useState(null);
-
-
-   useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const [leaseResponse, dispatchResponse] = await Promise.all([
-          adminAddQuaeyLastAPI(),
-          getLastEmployeeAPI(),
-        ]);
-
-        const leaseData = leaseResponse.data?.data || leaseResponse.data;
-        const dispatchData = dispatchResponse.data;
-        console.log(leaseData.SerialNo);
+        // Fetch data using getLastSerialNumberAPI
+        const response = await getLastSerialNumberAPI();
         
-        setManualSerialNo(leaseData.SerialNo)
-    
-        if (!leaseData || !dispatchData) throw new Error('Missing required data');
+        if (!response.data || !response.data.success) {
+          throw new Error('Failed to fetch data');
+        }
 
-        const combinedData = {
-          ...leaseData,
-          ...dispatchData,
-          SerialNo: manualSerialNo || serialno,
-          time: new Date().toLocaleString(),
+        const data = response.data.data;
+        console.log('Fetched data:', data);
+
+        // Prepare the complete data object
+        const completeData = {
+          ...data,
+          time: new Date().toLocaleString()
         };
 
-        setQueryData(combinedData);
+        setQueryData(completeData);
       } catch (err) {
         console.error('Fetch error:', err);
         setError('Failed to load data');
@@ -60,54 +50,47 @@ const [serialno, setSerialNo] = useState(null);
     fetchData();
   }, []);
 
-    useEffect(() => {
-    const fetchLatestQuery = async () => {
-      try {
-        const response = await getLastSerialNumberAPI();
-        if (response.data.success) {
-          const data = response.data.data;
-          setLatestQuery(data);
-
-          const nextSerialNo = parseInt(data.SerialNo, 10) + 1;
-          setSerialNo(nextSerialNo); // set it as state
-          console.log("Next Serial No:", nextSerialNo);
-        } else {
-          console.error('No data:', response.data.message);
-        }
-      } catch (error) {
-        console.error('Error fetching latest query:', error);
-      }
-    };
-
-    fetchLatestQuery();
-
-  }, []);
-
-      
-
-// const finalSerialNo = manualSerialNo || serialno;
-
 const handleAfterPrint = async () => {
   try {
-    const current = parseInt(manualSerialNo || serialno || 0, 10);
-    const updatedSerial = current + 1;
+    if (!queryData) {
+      console.error("No query data available");
+      return;
+    }
 
-    const newEntry = {
+    // First get the latest admin data to ensure we have the correct ID
+    const lastAdminResponse = await adminAddQuaeyLastAPI();
+    if (!lastAdminResponse.data) {
+      throw new Error("Failed to fetch last admin data");
+    }
+
+    const lastAdmin = lastAdminResponse.data.data;
+    if (!lastAdmin?._id) {
+      throw new Error("No valid admin ID found");
+    }
+
+    const currentSerial = parseInt(queryData?.SerialNo || 0, 10);
+    const currentDispatch = parseInt(queryData?.dispatchNo || 0, 10);
+
+    const updatedData = {
       ...queryData,
-      SerialNo: current,
-      time: new Date().toLocaleString()
+      SerialNo: currentSerial.toString(),
+      dispatchNo: currentDispatch.toString(),
+      time: new Date().toLocaleString(),
+      _id: lastAdmin._id // Use the fetched admin ID
     };
 
-    // Send current serial to DB
-    await queryDataAPI(newEntry);
-    console.log("Data sent to backend:", newEntry);
-
-    // Now prepare for next serial
-    setSerialNo(updatedSerial);
-    setManualSerialNo('');
-    setCurrentSerial(current);
+    const response = await adminQuaeyIdupdateAPI(lastAdmin._id, updatedData);
+    
+    // Check for successful update (200-299 status code or your API's success indicator)
+    if (response.status >= 200 && response.status < 300) {
+      console.log("Serial number updated in admin DB:", response.data);
+      setQueryData(updatedData);
+    } else {
+      throw new Error(response.data?.message || "Update failed with unknown error");
+    }
   } catch (err) {
-    console.error('Failed to update after print:', err);
+    console.error('Failed to update serial number:', err);
+    setError(`Update failed: ${err.message}`);
   }
 };
 
@@ -146,8 +129,8 @@ const handlePrint = async () => {
     }
 
     printWindow.document.write(`
-      <html>
-<head>
+<html>
+        <head>
           <title>Print Document</title>
           <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
           <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -156,7 +139,7 @@ const handlePrint = async () => {
             @page { 
               size: A4; 
               margin: 4mm; /* Reduced margin for more space */
-              margin-left:70px
+              margin-left:75px
                
             }
               body{
@@ -241,14 +224,12 @@ const handlePrint = async () => {
           
   
           </style>
-        </head>        <body>
+        </head>
+        <body>
           <div class="print-table-container">
-  ${printRef.current.innerHTML.replace(
-            /SerialNo:.*?(<span[^>]*>)(.*?)(<\/span>)/,
-            `SerialNo: $1${currentSerial}$3`
-          )}
-                    </div>
-          <script>
+            ${printRef.current.innerHTML}
+          </div>
+         <script>
             window.onload = function() {
               setTimeout(() => {
                 window.print();
@@ -258,6 +239,7 @@ const handlePrint = async () => {
               }, 500);
             };
           </script>
+
         </body>
       </html>
     `);
@@ -280,18 +262,16 @@ const handlePrint = async () => {
 
 
   const renderTable = (data, isDuplicate = false) => (
-    <div className="fontc table-wrapper">
+    <div className="fontc table-wrapper" style={isDuplicate ? { marginTop: '-30px' } : {}}>
 
-      <div className='img' style={{display:'flex', marginTop:'50px',marginLeft:'452px'}} >
+      <div className='img' style={{display:'flex', marginTop:'70px',marginLeft:'452px'}} >
         <div className='generatediv'>
-        <h4 style={{marginLeft:'10px',marginTop:'0px'}} className="generate-number" > {serialno}</h4>
-
+<h4 style={{marginLeft:'10px',marginTop:'15px',fontSize:'14px', fontWeight:'600',letterSpacing:'0px'}} className="generate-number" >{`TN0054${data.SerialNo}`}</h4>
         </div>
-        {serialno && (
-          <div style={{marginLeft:'23px'}} >
+        {data.dispatchNo && (
+          <div style={{marginLeft:'23px',fontWeight:'500'}} >
             <QRCodeSVG 
-  value={serialno }
-  size={55}
+value={`DISP${data.dispatchNo}`}  size={55}
   level="H"
 
 />
@@ -299,35 +279,45 @@ const handlePrint = async () => {
           </div>
         )}
       </div>
-      <div style={{display:'flex',gap:'385px'}} className="header-info">
-        <p className="font-semibold" style={{ marginLeft: '-27px' }}>HSN Code: {data.hsnCode || "-"}</p>
-      <p style={{ marginLeft: '0px' }}>
-  Date & Time of Dispatch: {(data.time && data.time
-    .replace(/\//g, '-')         
-    .replace(',', '')            
-    .replace(/ ?[AP]M/i, '')     
-    .trim()) || "-"}
+      <div style={{display:'flex',gap:'345px'}} className="header-info">
+        <p className="font-semibold" style={{ marginLeft: '-0px' }}>HSN Code: {data.hsnCode || "-"}</p>
+      <p style={{ marginLeft: '-27px' }}>
+  Date & Time of Dispatch : {data.travellingDate ? 
+    new Date(data.travellingDate).toLocaleString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second:'2-digit',
+      hour12: true
+    }).replace(/\//g, '-')
+    .replace(',', '')
+    .replace(/\s?[AP]M$/i, '')
+    : "-"}
+    
 </p>
+
 
       </div>
       <div className='text'>
       <table className="query-table">
         <tbody className="table-body">
           <tr>
-            <td>Lessee Id: {data.lesseeId}</td>
-            <td>Minecode: {data.minecode}</td>
-            <td>Lease Area Details:</td>
-            <td >Serial No:{data.SerialNo}{serialno}</td>
+            <td>Lessee Id : {data.lesseeId}</td>
+            <td>Minecode : {data.minecode}</td>
+            <td>Lease Area Details </td>
+            <td >Serial No: <span className='serial' style={{letterSpacing:'1px',fontSize:'8px'}}>{`TN0054${data.SerialNo}`}</span></td>
           </tr>
           <tr>
-            <td>Lessee Name and Address:</td>
+            <td>Lessee Name and Address :</td>
             <td>{data.lesseeName}</td>
-            <td>District Name:</td>
+            <td>District Name :</td>
             <td>{data.districtName}</td>
           </tr>
           <tr>
-            <td style={{ textAlign: 'left', verticalAlign: 'top'}} colSpan="2" rowSpan="3">{data.lesseeNameAddress}</td>
-            <td>Taluk Name</td>
+            <td style={{ textAlign: 'left', verticalAlign: 'top',maxWidth:'65px'}} colSpan="2" rowSpan="3">{data.lesseeNameAddress}</td>
+            <td>Taluk Name :</td>
             <td>{data.Taluk}</td>
           </tr>
           <tr>
@@ -335,46 +325,46 @@ const handlePrint = async () => {
             <td>{data.village}</td>
           </tr>
           <tr>
-            <td>SF.NoExtent</td>
+            <td>SF.No / Extent :</td>
             <td>{data.sfNoExtent}</td>
           </tr>
           <tr>
-            <td>Mineral Name: {data.mineralName}</td>
-            <td>Bulk Permit No: {data.bulkPermitNo}</td>
-            <td>Classification</td>
+            <td>Mineral Name : {data.mineralName}</td>
+            <td>Bulk Permit No : {data.bulkPermitNo}</td>
+            <td>Classification : </td>
             <td>{data.classification}</td>
           </tr>
           <tr>
             <td colSpan="2">Order Ref: {data.orderRef}</td>
-            <td>Lease Period:</td>
+            <td>Lease Period :</td>
             <td>{data.leasePeriod}</td>
           </tr>
           <tr>
-            <td>Dispatch Slip No:</td>
-            <td>{data.dispatchNo}  </td>
+            <td>Dispatch Slip No :</td>
+            <td>{`DISP${data.dispatchNo}`}</td>
             <td>Within Tamil Nadu</td>
             <td>{data.withinTamilNadu}</td>
           </tr>
           <tr>
-            <td>Delivered To:</td>
+            <td>Delivered To :</td>
             <td colSpan="3">{data.deliveredTo}</td>
           </tr>
           <tr>
-            <td>Vehicle No:</td>
+            <td>Vehicle No :</td>
             <td>{data.vehicleNo}</td>
-            <td colSpan="2">Destination Address:</td>
+            <td colSpan="2">Destination Address :</td>
           </tr>
           <tr>
-            <td>Vehicle Type:</td>
+            <td>Vehicle Type :</td>
             <td>{data.vehicleType}</td>
             <td  style={{ textAlign: 'left', verticalAlign: 'top'}}  colSpan="2" rowSpan="4">{data.destinationAddress}</td>
           </tr>
           <tr>
-            <td>Total Distance (in Kms):</td>
+            <td>Total Distance (in Kms) :</td>
             <td>{data.totalDistance}</td>
           </tr>
          <tr>
-  <td>Travelling Date:</td>
+  <td>Travelling Date :</td>
   <td>
     {data.travellingDate
       ? new Date(data.travellingDate).toLocaleString('en-GB', {
@@ -391,7 +381,7 @@ const handlePrint = async () => {
   </td>
 </tr>
 <tr>
-  <td>Required Time:</td>
+  <td>Required Time :</td>
   <td>
     {data.travellingDate && data.requiredTime ? (() => {
       const start = new Date(data.travellingDate);
@@ -411,7 +401,7 @@ const handlePrint = async () => {
         .replace(/\//g, '-')
         .replace(',', '');
 
-      return `${diffHours} hrs (${formatted})`;
+      return` ${diffHours} hrs (${formatted})`;
     })() : '-'}
   </td>
 </tr>
@@ -429,17 +419,17 @@ const handlePrint = async () => {
             <td>{data.via}</td>
           </tr>
           <tr>
-            <td>Driver Phone No:</td>
+            <td>Driver Phone No :</td>
             <td>{data.driverPhoneNo}</td>
-            <td>Lessee / Authorized Person Name:</td>
+            <td>Lessee / Authorized Person Name :</td>
             <td>{data.authorizedPersonName}</td>
           </tr>
           <tr>
-            <td>Driver Signature:</td>
+            <td style={{ textAlign: 'left', verticalAlign: 'top'}} >Driver Signature :</td>
             <td>
              
             </td>
-            <td>Signature of AD / DD:</td>
+            <td style={{ textAlign: 'left', verticalAlign: 'top'}}>Signature of AD / DD :</td>
             <td>
               {data.signature ? 
                 <img src={data.signature} alt="AD Signature" style={{ maxHeight: '30px' }} /> : 
@@ -476,21 +466,19 @@ const handlePrint = async () => {
         <button className="print-button" onClick={handlePrint}>
           🖨 Print
         </button>
-        <button className="image-button" onClick={convertToImage}>
-          Convert to Image
-        </button>
-        <button className="reset-button" onClick={() => localStorage.setItem('printSerialNumber', '0')}>
-          🔄 Reset Serial Number
-        </button>
+        
+         
+      
+      
       </div>
 
       {/* Image preview */}
       {imageUrl && (
         <div className="image-preview no-print">
-          <h3>Image Preview:</h3>
+          <h3></h3>
           <img src={imageUrl} alt="Converted document" style={{ maxWidth: '100%' }} />
           <a href={imageUrl} download="document.png" className="download-link">
-            Download Image
+            
           </a>
         </div>
       )}

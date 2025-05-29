@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './UserDispatch.css';
-import { employeeAddtAPI } from '../../Server/allAPI';
+import { adminAddQuaeyLastAPI, queryDataAPI } from '../../Server/allAPI';
 import { useNavigate } from 'react-router-dom';
 
 function UserDispatch() {
@@ -10,12 +10,11 @@ function UserDispatch() {
     const now = new Date();
     const offset = now.getTimezoneOffset();
     const local = new Date(now.getTime() - offset * 60000);
-    return local.toISOString().slice(0, 16); // For datetime-local
+    return local.toISOString().slice(0, 16);
   };
 
-  const [autoDate, setAutoDate] = useState(true);
-
-  const [formData, setFormData] = useState({
+  // Define initial form state
+  const initialFormState = {
     deliveredTo: '',
     vehicleNo: '',
     vehicleType: '',
@@ -29,9 +28,36 @@ function UserDispatch() {
     destinationAddress: '',
     driverSignature: '',
     via: ''
-  });
+  };
 
-  // Update travellingDate every 1 minute when auto is on
+  const [autoDate, setAutoDate] = useState(true);
+  const [queryData, setQueryData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState(initialFormState);
+
+  // Fetch data when component mounts
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const adminResponse = await adminAddQuaeyLastAPI();
+        console.log('Admin Query Data:', adminResponse.data.data);
+        
+        if (adminResponse.data.data) {
+          setQueryData(adminResponse.data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        alert('Failed to load required data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Auto-update date time
   useEffect(() => {
     if (autoDate) {
       const interval = setInterval(() => {
@@ -44,9 +70,7 @@ function UserDispatch() {
     }
   }, [autoDate]);
 
-
-  // Automatically calculate Required Time based on totalDistance
-
+  // Calculate required time based on distance
   useEffect(() => {
     if (formData.totalDistance) {
       const distance = parseFloat(formData.totalDistance);
@@ -57,7 +81,7 @@ function UserDispatch() {
         const requiredDateTime = new Date(now.getTime() + travelTimeInMs);
         const offset = requiredDateTime.getTimezoneOffset();
         const local = new Date(requiredDateTime.getTime() - offset * 60000);
-        const formattedTime = local.toISOString().slice(0, 16); // datetime-local format
+        const formattedTime = local.toISOString().slice(0, 16);
         setFormData(prev => ({
           ...prev,
           requiredTime: formattedTime
@@ -74,22 +98,52 @@ function UserDispatch() {
     }));
   };
 
-  
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      const existingData = JSON.parse(localStorage.getItem('dispatchData')) || [];
-      const updatedData = [...existingData, formData];
+  if (!queryData) {
+    alert('Required data is not loaded yet. Please wait...');
+    return;
+  }
 
-      localStorage.setItem('dispatchData', JSON.stringify(updatedData));
- const response = await employeeAddtAPI(formData);
-      console.log(response);
-      
-      alert('Dispatch data submitted successfully!');
-      navigate('/userlist');
+  try {
+    // Get current numbers and ranges
+    const currentSerial = parseInt(queryData.SerialNo || '0', 10);
+    const serialStart = parseInt(queryData.SerialStartNo || '0', 10);
+    const serialEnd = parseInt(queryData.SerialEndNo || '0', 10);
+    const currentDispatch = parseInt(queryData.dispatchNo || '0', 10);
 
-      // Reset form
+    // Calculate new serial number (loop back to start if at end)
+    let newSerial;
+    if (serialEnd > 0 && currentSerial >= serialEnd) {
+      // Reached end - reset to start
+      newSerial = serialStart;
+      alert('Serial number range completed. Resetting to start number.');
+    } else {
+      // Normal increment
+      newSerial = currentSerial + 1;
+    }
+
+    // Always increment dispatch number
+    const newDispatch = currentDispatch + 1;
+
+    // Merge form and query data
+    const mergedData = {
+      ...queryData,
+      ...formData,
+      SerialNo: newSerial,
+      dispatchNo: newDispatch,
+      createdAt: new Date().toISOString()
+    };
+
+    // Submit the merged data
+    const response = await queryDataAPI(mergedData);
+
+    if (response.status === 200 || response.status === 201) {
+      alert("Successfully Submitted");
+      navigate('/userview');
+
+      // Reset form after successful submit
       setFormData({
         deliveredTo: '',
         vehicleNo: '',
@@ -105,17 +159,35 @@ function UserDispatch() {
         driverSignature: '',
         via: ''
       });
-    } catch (error) {
-      console.error('Error submitting data:', error);
-      alert('Failed to submit dispatch data');
+
+      // Update local queryData with new numbers
+      setQueryData(prev => ({
+        ...prev,
+        SerialNo: newSerial,
+        dispatchNo: newDispatch
+      }));
+
+    } else {
+      throw new Error('Submission failed');
     }
-  };
+  } catch (error) {
+    console.error('Error submitting data:', error);
+    alert('Failed to submit dispatch data');
+  }
+};
+
+  if (loading) {
+    return <div className="dispatch-container">Loading data...</div>;
+  }
 
   return (
     <div className="dispatch-container">
       <h2>Dispatch For</h2>
+
+     
       <form onSubmit={handleSubmit}>
         <div className="form-grid">
+          {/* Dispatch form fields */}
           <div>
             <label>Delivered To:</label>
             <input type="text" name="deliveredTo" value={formData.deliveredTo} onChange={handleChange} className="input" />
@@ -219,7 +291,9 @@ function UserDispatch() {
           </div>
         </div>
 
-        <button type="submit">Submit</button>
+        <button type="submit" disabled={!queryData}>
+          Submit
+        </button>
       </form>
     </div>
   );
