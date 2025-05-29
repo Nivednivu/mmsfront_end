@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { getLastEmployeeAPI } from '../../Server/allAPI'; // Adjust import path as needed
+import { querySingleGetAPI } from '../../Server/allAPI';
+import { useParams } from 'react-router-dom';
+import './UserLast.css'; // Import the CSS file
 
 function UserLast() {
+  const { id } = useParams();
   const [lastEmployee, setLastEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -10,13 +13,11 @@ function UserLast() {
     const fetchLastEmployee = async () => {
       try {
         setLoading(true);
-        const response = await getLastEmployeeAPI();
-        
+        const response = await querySingleGetAPI(id);
         if (!response.data) {
           setError('No employee data found');
           return;
         }
-
         setLastEmployee(response.data);
       } catch (err) {
         console.error('Error fetching employee data:', err);
@@ -27,108 +28,83 @@ function UserLast() {
     };
 
     fetchLastEmployee();
-  }, []);
+  }, [id]);
 
-  if (loading) {
-    return <div className="loading-container">Loading employee data...</div>;
-  }
+  if (loading) return <div className="loading-container">Loading...</div>;
+  if (error) return <div className="error-container">{error}</div>;
+  if (!lastEmployee) return <div className="no-data-container">No data found</div>;
 
-  if (error) {
-    return <div className="error-container">{error}</div>;
-  }
-
-  if (!lastEmployee) {
-    return <div className="no-data-container">No employee data available</div>;
-  }
-
-  // Format dates for better readability
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleString();
   };
-console.log(lastEmployee);
 
   return (
     <div className="user-last-container">
-      <h2>Last Dispatch Details</h2>
-      <div className="details-grid">
-        
-        <div className="detail-row">
-          <span className="detail-label">Created At:</span>
-          <span className="detail-value">{formatDate(lastEmployee.createdAt)}</span>
-        </div>
-        
-        <div className="detail-row">
-          <span className="detail-label">Delivered To:</span>
-          <span className="detail-value">{lastEmployee.deliveredTo || 'N/A'}</span>
-        </div>
+      <h2 className="section-title">Dispatch & User Details</h2>
 
-        <div className="detail-row">
-          <span className="detail-label">Destination Address:</span>
-          <span className="detail-value">{lastEmployee.destinationAddress || 'N/A'}</span>
+      <div className="section">
+        <h3>User / Lessee Details</h3>
+        <div className="details-grid">
+          <div className="detail-row"><span>Lessee Name:</span><span>{lastEmployee.lesseeName || 'N/A'}</span></div>
+          <div className="detail-row"><span>Mine Code:</span><span>{lastEmployee.minecode || 'N/A'}</span></div>
+          <div className="detail-row"><span>Lessee Address:</span><span>{lastEmployee.lesseeNameAddress || 'N/A'}</span></div>
+          <div className="detail-row"><span>Lessee ID:</span><span>{lastEmployee.lesseeId || 'N/A'}</span></div>
+          <div className="detail-row"><span>Authorized Person:</span><span>{lastEmployee.lesseeAuthPersonName || 'N/A'}</span></div>
         </div>
+      </div>
 
-        <div className="detail-row">
-          <span className="detail-label">Driver License No:</span>
-          <span className="detail-value">{lastEmployee.driverLicenseNo || 'N/A'}</span>
+      <div className="section">
+        <h3>Permit & Mineral Details</h3>
+        <div className="details-grid">
+          <div className="detail-row"><span>Bulk Permit No:</span><span>{lastEmployee.bulkPermitNo || 'N/A'}</span></div>
+          <div className="detail-row"><span>Mineral Name:</span><span>{lastEmployee.mineralName || 'N/A'}</span></div>
+          <div className="detail-row"><span>HSN Code:</span><span>{lastEmployee.hsnCode || 'N/A'}</span></div>
+          <div className="detail-row"><span>Classification:</span><span>{lastEmployee.classification || 'N/A'}</span></div>
+          <div className="detail-row"><span>Lease Period:</span><span>{lastEmployee.leasePeriod || 'N/A'}</span></div>
         </div>
+      </div>
 
-        <div className="detail-row">
-          <span className="detail-label">Driver Name:</span>
-          <span className="detail-value">{lastEmployee.driverName || 'N/A'}</span>
+      <div className="section">
+        <h3>Location Details</h3>
+        <div className="details-grid">
+          <div className="detail-row"><span>District:</span><span>{lastEmployee.districtName || 'N/A'}</span></div>
+          <div className="detail-row"><span>Taluk:</span><span>{lastEmployee.Taluk || 'N/A'}</span></div>
+          <div className="detail-row"><span>Village:</span><span>{lastEmployee.village || 'N/A'}</span></div>
+          <div className="detail-row"><span>SF No & Extent:</span><span>{lastEmployee.sfNoExtent || 'N/A'}</span></div>
         </div>
+      </div>
 
-        <div className="detail-row">
-          <span className="detail-label">Driver Phone No:</span>
-          <span className="detail-value">{lastEmployee.driverPhoneNo || 'N/A'}</span>
+      <div className="section">
+        <h3>Dispatch & Vehicle Details</h3>
+        <div className="details-grid">
+          <div className="detail-row"><span>Dispatch No:</span><span>{lastEmployee.dispatchNo || 'N/A'}</span></div>
+          <div className="detail-row"><span>Delivered To:</span><span>{lastEmployee.deliveredTo || 'N/A'}</span></div>
+          <div className="detail-row"><span>Destination:</span><span>{lastEmployee.destinationAddress || 'N/A'}</span></div>
+          <div className="detail-row"><span>Vehicle No:</span><span>{lastEmployee.vehicleNo || 'N/A'}</span></div>
+          <div className="detail-row"><span>Vehicle Type:</span><span>{lastEmployee.vehicleType || 'N/A'}</span></div>
+          <div className="detail-row"><span>Via:</span><span>{lastEmployee.via || 'N/A'}</span></div>
+          <div className="detail-row"><span>Quantity:</span><span>{lastEmployee.quantity || 'N/A'}</span></div>
+          <div className="detail-row"><span>Total Distance:</span><span>{lastEmployee.totalDistance || 'N/A'}</span></div>
         </div>
+      </div>
 
-        <div className="detail-row">
-          <span className="detail-label">Quantity:</span>
-          <span className="detail-value">{lastEmployee.quantity || 'N/A'}</span>
+      <div className="section">
+        <h3>Driver Details</h3>
+        <div className="details-grid">
+          <div className="detail-row"><span>Driver Name:</span><span>{lastEmployee.driverName || 'N/A'}</span></div>
+          <div className="detail-row"><span>Phone No:</span><span>{lastEmployee.driverPhoneNo || 'N/A'}</span></div>
+          <div className="detail-row"><span>License No:</span><span>{lastEmployee.driverLicenseNo || 'N/A'}</span></div>
         </div>
+      </div>
 
-        <div className="detail-row">
-          <span className="detail-label">Required Time:</span>
-          <span className="detail-value">{formatDate(lastEmployee.requiredTime)}</span>
+      <div className="section">
+        <h3>Timing Information</h3>
+        <div className="details-grid">
+          <div className="detail-row"><span>Required Time:</span><span>{formatDate(lastEmployee.requiredTime)}</span></div>
+          <div className="detail-row"><span>Travelling Date:</span><span>{formatDate(lastEmployee.travellingDate)}</span></div>
         </div>
-
-        <div className="detail-row">
-          <span className="detail-label">Total Distance:</span>
-          <span className="detail-value">{lastEmployee.totalDistance || 'N/A'}</span>
-        </div>
-
-        <div className="detail-row">
-          <span className="detail-label">Travelling Date:</span>
-          <span className="detail-value">{formatDate(lastEmployee.travellingDate)}</span>
-        </div>
-
-        <div className="detail-row">
-          <span className="detail-label">Vehicle No:</span>
-          <span className="detail-value">{lastEmployee.vehicleNo || 'N/A'}</span>
-        </div>
-
-        <div className="detail-row">
-          <span className="detail-label">Vehicle Type:</span>
-          <span className="detail-value">{lastEmployee.vehicleType || 'N/A'}</span>
-        </div>
-
-        <div className="detail-row">
-          <span className="detail-label">Via:</span>
-          <span className="detail-value">{lastEmployee.via || 'N/A'}</span>
-        </div>
-
-        {lastEmployee.driverSignature && (
-          <div className="detail-row">
-            <span className="detail-label">Driver Signature:</span>
-            <img 
-              src={lastEmployee.driverSignature} 
-              alt="Driver Signature" 
-              className="signature-image"
-            />
-          </div>
-        )}
       </div>
     </div>
   );

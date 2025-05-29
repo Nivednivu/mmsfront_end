@@ -12,7 +12,6 @@ function QueryEntry() {
     minecode: '',
     lesseeName: '',
     SerialNo: '',
-    SerialStartNo: '',
     SerialEndNo:'',
     dispatchNo: '',
     lesseeNameAddress: '',
@@ -173,19 +172,18 @@ function QueryEntry() {
                 onChange={handleChange} 
               />
             </div>
-
-              <div className="range-group">
                 <div>
-                  <label>Start Serial Number:</label>
+                  <label> Serial Number:</label>
                   <input
                     type="number"
-                    name="SerialStartNo"
-                    value={formData.SerialStartNo}
+                    name="SerialNo"
+                    value={formData.SerialNo}
                     onChange={handleChange}
-                    min="1"
-                    required
+                    min={formData.SerialNo}
                   />
                 </div>
+
+              <div className="range-group">
                 <div>
                   <label>End Serial Number:</label>
                   <input
@@ -197,16 +195,6 @@ function QueryEntry() {
                   />
                 </div>
               </div>
-                <div>
-                  <label> Serial Number:</label>
-                  <input
-                    type="number"
-                    name="SerialNo"
-                    value={formData.SerialNo}
-                    onChange={handleChange}
-                    min={formData.SerialNo}
-                  />
-                </div>
 
 
             <div>

@@ -9,7 +9,7 @@ function Quaryyy() {
   useEffect(() => {
     fetchQueryData();
   }, []);
-
+ 
   const fetchQueryData = async () => {
     try {
       const res = await queryGetAPI();

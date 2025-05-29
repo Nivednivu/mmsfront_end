@@ -4,7 +4,7 @@ import { adminAddQuaeyLastAPI, queryDataAPI } from '../../Server/allAPI';
 import { useNavigate } from 'react-router-dom';
 
 function UserDispatch() {
-  const navigate = useNavigate();
+const navigate = useNavigate();
 
   const getCurrentDateTime = () => {
     const now = new Date();
@@ -98,6 +98,7 @@ function UserDispatch() {
     }));
   };
 
+
 const handleSubmit = async (e) => {
   e.preventDefault();
 
@@ -107,26 +108,26 @@ const handleSubmit = async (e) => {
   }
 
   try {
-    // Get current numbers and ranges
+    // Get current numbers
     const currentSerial = parseInt(queryData.SerialNo || '0', 10);
-    const serialStart = parseInt(queryData.SerialStartNo || '0', 10);
-    const serialEnd = parseInt(queryData.SerialEndNo || '0', 10);
     const currentDispatch = parseInt(queryData.dispatchNo || '0', 10);
+    const serialEnd = parseInt(queryData.SerialEndNo || '0', 10);
+    // const dispatchEnd = parseInt(queryData.dispatchEndNo || '0', 10);
 
-    // Calculate new serial number (loop back to start if at end)
-    let newSerial;
+    // Check if we've reached the end of the ranges
     if (serialEnd > 0 && currentSerial >= serialEnd) {
-      // Reached end - reset to start
-      newSerial = serialStart;
-      alert('Serial number range completed. Resetting to start number.');
-    } else {
-      // Normal increment
-      newSerial = currentSerial + 1;
+      alert('Serial number range has been exhausted. Please contact admin.');
+      return;
     }
 
-    // Always increment dispatch number
-    const newDispatch = currentDispatch + 1;
+    // if (dispatchEnd > 0 && currentDispatch >= dispatchEnd) {
+    //   alert('Dispatch number range has been exhausted. Please contact admin.');
+    //   return;
+    // }
 
+    // Calculate new numbers (only increment if not at end)
+    const newSerial = serialEnd > 0 ? Math.min(currentSerial + 1, serialEnd) : currentSerial + 1;
+      const newDispatch = currentDispatch + 1;
     // Merge form and query data
     const mergedData = {
       ...queryData,
@@ -176,7 +177,11 @@ const handleSubmit = async (e) => {
   }
 };
 
+
   if (loading) {
+    return <div className="dispatch-container">Loading data...</div>;
+  }
+    if (loading) {
     return <div className="dispatch-container">Loading data...</div>;
   }
 
@@ -206,7 +211,7 @@ const handleSubmit = async (e) => {
           <div>
             <label>Total Distance (Kms):</label>
             <input
-              type="number"
+              type="text"
               name="totalDistance"
               value={formData.totalDistance}
               onChange={handleChange}
@@ -214,7 +219,7 @@ const handleSubmit = async (e) => {
             />
           </div>
 
-          <div>
+          <div  style={{marginLeft:'90px'}}>
             <label>Traveling Date & Time:</label>
             <div className="flex items-center gap-2 mb-1">
               <label>
@@ -244,8 +249,8 @@ const handleSubmit = async (e) => {
             />
           </div>
 
-          <div>
-            <label style={{marginTop:'70px'}}>Required Date & Time:</label>
+          <div style={{marginTop:'-110px',marginLeft:'20px'}}>
+            <label >Required Date & Time:</label>
             <input
               type="datetime-local"
               name="requiredTime"
@@ -255,17 +260,17 @@ const handleSubmit = async (e) => {
             />
           </div>
 
-          <div>
-            <label style={{marginTop:'70px',marginRight:'10px'}}>Quantity (in MT):</label>
-            <input type="number" name="quantity" value={formData.quantity} onChange={handleChange} className="input" />
+          <div style={{marginLeft:'-250px',marginTop:'10px'}} >
+            <label >Quantity (in MT):</label>
+            <input type="text" name="quantity" value={formData.quantity} onChange={handleChange} className="input" />
           </div>
 
-          <div>
+          <div style={{marginTop:'10px',marginLeft:'30px'}}>
             <label>Driver Name:</label>
             <input type="text" name="driverName" value={formData.driverName} onChange={handleChange} className="input" />
           </div>
 
-          <div>
+          <div style={{marginTop:'10px'}}>
             <label>Driver Phone No:</label>
             <input type="text" name="driverPhoneNo" value={formData.driverPhoneNo} onChange={handleChange} className="input" />
           </div>

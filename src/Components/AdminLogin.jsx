@@ -1,58 +1,50 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // import navigation hook
+import { useNavigate } from 'react-router-dom';
+import './AdminLogin.css';
 
 function AdminLogin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate(); // initialize navigate function
+  const navigate = useNavigate();
 
   const handleLogin = (e) => {
     e.preventDefault();
-
-    // Check credentials
     if (username === 'mms' && password === 'mms123') {
       alert('Login successful!');
-      navigate('/side'); // redirect to vehicle-mega page
+      navigate('/side');
     } else {
       alert('Invalid username or password');
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100 " style={{marginLeft:"600px",width:"400px",marginTop:'200px'}}>
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
-        <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">Admin Login</h2>
-        <form onSubmit={handleLogin} className="space-y-5">
-          <div>
-            <label className="block mb-1 font-semibold text-gray-700">Username:</label>
+    <div className="admin-login-container">
+      <div className="admin-login-box">
+        <h2 className="admin-login-title">Admin Login</h2>
+        <form onSubmit={handleLogin} className="admin-login-form">
+          <div className="form-group">
+            <label htmlFor="username">Username:</label>
             <input
+              id="username"
               type="text"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
+              onChange={e => setUsername(e.target.value)}
               placeholder="Enter username"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
             />
           </div>
-
-          <div>
-            <label className="block mb-1 font-semibold text-gray-700">Password:</label>
+          <div className="form-group">
+            <label htmlFor="password" style={{width:'200px'}}>Password:</label>
             <input
+              id="password"
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              onChange={e => setPassword(e.target.value)}
               placeholder="Enter password"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
             />
           </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200"
-          >
-            Login
-          </button>
+          <button type="submit" className="admin-login-button">Login</button>
         </form>
       </div>
     </div>

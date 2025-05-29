@@ -36,12 +36,12 @@ function UserDashboard() {
           </li>
           <li onClick={handleDispatchClick}>
             <FaTruck className="icon-green" />
-            <span>Dispatch</span>
+            <span>Dispatch List</span>
           </li>
-                    <Link to={'/userview'}
+                    {/* <Link to={'/userview'}
            style={{  color: '#333',  textDecoration: 'none',}}>
           <li>  User View</li>
-          </Link>
+          </Link> */}
 
         </ul>
       </aside>

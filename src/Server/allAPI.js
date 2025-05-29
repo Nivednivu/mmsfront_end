@@ -59,6 +59,21 @@ export const updateSerialNumberAPI = async () => {
 //   return await commonAPI("GET", `${SERVER_URL}/querylast`, reqBody);
 // };
 
+export const deleteQueryAPI = async (id) => {
+  return await commonAPI("DELETE", `${SERVER_URL}/deleteQuery/${id}`);
+};      
+
+export const deleteAllQueriesAPI = async () => {
+  return await commonAPI("DELETE", `${SERVER_URL}/deleteAllQueries`);
+};
+
+export const querySingleGetAPI = async (id) => {
+  return await commonAPI("GET", `${SERVER_URL}/queryget/${id}`);
+};
+
+
+
+
 export const getLastDispatchNumberAPI = async () => {
   return await commonAPI("GET", `${SERVER_URL}/dispatch`);
 };
@@ -70,9 +85,6 @@ export const updateDispatchNumberAPI = async (reqBody) => {
         return await commonAPI("GET", `${SERVER_URL}/queryget`,reqBody);
       };      
 
-export const querySingleGetAPI = async (id) => {
-  return await commonAPI("GET", `${SERVER_URL}/queryget/${id}`);
-};
 
 
 export const adminAddQuaeyAPI = async (reqBody) => {

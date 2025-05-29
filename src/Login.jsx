@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Login.css';
 import { loginAPI } from './Server/allAPI';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -56,22 +57,23 @@ const Login = () => {
               required
             />
           </label>
-          <label>
-            Password *
-            <input
-              type={showPassword ? 'text' : 'password'}
-              value={loginUser.password}
-              onChange={(e) => setLoginUser({ ...loginUser, password: e.target.value })}
-              required
-            />
-            <button
-              type="button"
-              className="toggle-password"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? 'Hide' : 'Show'}
-            </button>
-          </label>
+         <label>
+  Password *
+  <div className="password-wrapper left-icon" style={{width:'380px'}}>
+    <span
+      className="password-toggle-icon"
+      onClick={() => setShowPassword(!showPassword)}
+    >
+      {showPassword ? <FaEyeSlash/> : <FaEye/>}
+    </span>
+    <input
+      type={showPassword ? 'text' : 'password'}
+      value={loginUser.password}
+      onChange={(e) => setLoginUser({ ...loginUser, password: e.target.value })}
+      required
+    />
+  </div>
+</label>
           <button type="submit" className="login-button">Login</button>
           {/* <button type="button" className="other-payment-button">Other Payment</button> */}
         </form>

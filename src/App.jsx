@@ -56,7 +56,7 @@ function App() {
       <Route path='/adminqview/:id' element={<QueryAdminView/>  }  />
       <Route path='/userview' element={<UserView/>  }  />
       <Route path='/qr' element={<QRCodeGenerator/>  }  />
-      <Route path='/lastuser' element={<UserLast/>  }  />
+      <Route path='/lastuser/:id' element={<UserLast/>  }  />
       <Route path='/qu' element={<Quaryyy/>  }  />
       <Route path='/q' element={<QueryLastData/>  }  />
 

@@ -68,3 +68,27 @@ input[type="text"] {
   padding: 6px;
   box-sizing: border-box;
 }
+
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.search-bar input {
+  width: 500px;
+  max-width: 100%;
+}
+
+.action-butt{
+    display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+}
