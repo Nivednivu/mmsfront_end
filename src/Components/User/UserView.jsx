@@ -16,39 +16,52 @@ function UserView() {
   const [imageUrl, setImageUrl] = useState('');
   const printRef = useRef();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        // Fetch data using getLastSerialNumberAPI
-        const response = await getLastSerialNumberAPI();
-        
-        if (!response.data || !response.data.success) {
-          throw new Error('Failed to fetch data');
-        }
-
-        const data = response.data.data;
-        console.log('Fetched data:', data);
-
-        // Prepare the complete data object
-        const completeData = {
-          ...data,
-          time: new Date().toLocaleString()
-        };
-
-        setQueryData(completeData);
-      } catch (err) {
-        console.error('Fetch error:', err);
-        setError('Failed to load data');
-      } finally {
-        setLoading(false);
+      const response = await getLastSerialNumberAPI();
+      
+      if (!response.data || !response.data.success) {
+        throw new Error('Failed to fetch data');
       }
-    };
 
-    fetchData();
-  }, []);
+      const data = response.data.data;
+      
+      // Format with random seconds in 12-hour format
+      const formattedDate = data.travellingDate 
+        ? (() => {
+            const date = new Date(data.travellingDate);
+            const pad = num => num.toString().padStart(2, '0');
+            const randomSeconds = pad(Math.floor(Math.random() * 61)); // 00-60
+            const hours = date.getHours();
+            const twelveHour = hours % 12 || 12; // Convert to 12-hour format (1-12)
+            
+            return `${pad(date.getDate())}-${pad(date.getMonth() + 1)}-${date.getFullYear()} ` +
+                  ` ${pad(twelveHour)}:${pad(date.getMinutes())}:${randomSeconds}`;
+          })()
+        : "-";
+
+      const completeData = {
+        ...data,
+        time: new Date().toLocaleString(),
+        formattedTravellingDate: formattedDate
+      };
+
+      setQueryData(completeData);
+    } catch (err) {
+      console.error('Fetch error:', err);
+      setError('Failed to load data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, []);
+
 
 const handleAfterPrint = async () => {
   try {
@@ -279,24 +292,12 @@ value={`DISP${data.dispatchNo}`}  size={55}
           </div>
         )}
       </div>
-      <div style={{display:'flex',gap:'345px'}} className="header-info">
+      <div style={{display:'flex',gap:'343px'}} className="header-info">
         <p className="font-semibold" style={{ marginLeft: '-0px' }}>HSN Code: {data.hsnCode || "-"}</p>
-      <p style={{ marginLeft: '-27px' }}>
-  Date & Time of Dispatch : {data.travellingDate ? 
-    new Date(data.travellingDate).toLocaleString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second:'2-digit',
-      hour12: true
-    }).replace(/\//g, '-')
-    .replace(',', '')
-    .replace(/\s?[AP]M$/i, '')
-    : "-"}
-    
+  <p style={{ marginLeft: '-27px' }}>
+  Date & Time of Dispatch: {queryData.formattedTravellingDate || "-"}
 </p>
+
 
 
       </div>
@@ -407,13 +408,13 @@ value={`DISP${data.dispatchNo}`}  size={55}
 </tr>
 
           <tr>
-            <td>Quantity (in MT):</td>
+            <td>Quantity (in MT) :</td>
             <td>{data.quantity}</td>
-            <td>Driver Name:</td>
+            <td>Driver Name :</td>
             <td>{data.driverName}</td>
           </tr>
           <tr>
-            <td>Driver License No:</td>
+            <td>Driver License No :</td>
             <td>{data.driverLicenseNo}</td>
             <td>Via</td>
             <td>{data.via}</td>
