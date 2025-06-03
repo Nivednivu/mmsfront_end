@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import './UserDashbord.css';
 import { FaFileAlt, FaTruck } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 function UserDashboard() {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
+  const location = useLocation();
+  const { userData } = location.state || {};
+  
   const [showEpermit, setShowEpermit] = useState(false);
   const [showUserList, setShowUserList] = useState(false);
 
@@ -12,16 +15,24 @@ function UserDashboard() {
     e.preventDefault();
     setShowEpermit(!showEpermit);
     setShowUserList(false);
-    navigate('/userdispatch'); // Navigate to UserList page
+    navigate('/userdispatch', { 
+        state: { 
+          userData
+        } 
+    });
   };
 
   const handleDispatchClick = (e) => {
     e.preventDefault();
     setShowUserList(!showUserList);
     setShowEpermit(false);
-    navigate('/userlist'); // Navigate to UserDispatch page
+    navigate('/userlist', { 
+      state: { 
+        userId: userData._id, 
+        lesseeId: userData.lesseeId 
+      } 
+    });
   };
-
 
   return (
     <div className="dashboard-container">

@@ -3,52 +3,86 @@ import { QRCodeSVG } from 'qrcode.react';
 import { toPng } from 'html-to-image';
 import './UserView.css';
 import {
-  getLastSerialNumberAPI,
   adminQuaeyIdupdateAPI,
-  adminAddQuaeyLastAPI
+  adminAddQuaeyByIdAPI,
+  queryDataAPI,
+  
 } from '../../Server/allAPI';
-
-
+import { useLocation, useNavigate } from 'react-router-dom';
+// adminAddQuaeyByIdAPI
+// updateAdminData
 function UserView() {
+const navigate = useNavigate()
+    const location = useLocation();
+    const { userData } = location.state || {};
+  const userId = userData?.data._id
+console.log(userId);
+
   const [queryData, setQueryData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [imageUrl, setImageUrl] = useState('');
   const printRef = useRef();
 
+  
+
   useEffect(() => {
+    // Only fetch if we have a valid ID
+    if (!userId) {
+      console.error('No user ID available');
+      navigate('/');
+      return;
+    }
+
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        // Fetch data using getLastSerialNumberAPI
-        const response = await getLastSerialNumberAPI();
+        // Pass the ID directly to the API function
+        const response = await adminAddQuaeyByIdAPI(userId);
         
-        if (!response.data || !response.data.success) {
-          throw new Error('Failed to fetch data');
+        if (!response?.data) {
+          throw new Error('No data received from server');
         }
 
-        const data = response.data.data;
-        console.log('Fetched data:', data);
+        const data = response.data.data || response.data;
+        if (!data) throw new Error('Empty response data');
 
-        // Prepare the complete data object
-        const completeData = {
-          ...data,
-          time: new Date().toLocaleString()
-        };
 
-        setQueryData(completeData);
+        const formattedDate = data.travellingDate 
+        ? (() => {
+            const date = new Date(data.travellingDate);
+            const pad = num => num.toString().padStart(2, '0');
+            const randomSeconds = pad(Math.floor(Math.random() * 61)); // 00-60
+            const hours = date.getHours();
+            const twelveHour = hours % 12 || 12; // Convert to 12-hour format (1-12)
+            
+            return `${pad(date.getDate())}-${pad(date.getMonth() + 1)}-${date.getFullYear()} ` +
+                   `${pad(twelveHour)}:${pad(date.getMinutes())}:${randomSeconds}`;
+          })()
+        : "-";
+
+      const completeData = {
+        ...data,
+        time: new Date().toLocaleString(),
+        formattedTravellingDate: formattedDate
+      };
+
+      setQueryData(completeData);
+
       } catch (err) {
         console.error('Fetch error:', err);
-        setError('Failed to load data');
+        setError(err.message);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [userId, navigate]); // Add userId to dependencies
+
+  // ... rest of your component
 
 const handleAfterPrint = async () => {
   try {
@@ -58,12 +92,14 @@ const handleAfterPrint = async () => {
     }
 
     // First get the latest admin data to ensure we have the correct ID
-    const lastAdminResponse = await adminAddQuaeyLastAPI();
+    const lastAdminResponse = await adminAddQuaeyByIdAPI(userId);
     if (!lastAdminResponse.data) {
       throw new Error("Failed to fetch last admin data");
     }
 
-    const lastAdmin = lastAdminResponse.data.data;
+    const lastAdmin = lastAdminResponse.data;
+    console.log(lastAdmin?._id,"lastadmin id");
+    
     if (!lastAdmin?._id) {
       throw new Error("No valid admin ID found");
     }
@@ -78,8 +114,8 @@ const handleAfterPrint = async () => {
       time: new Date().toLocaleString(),
       _id: lastAdmin._id // Use the fetched admin ID
     };
-
-    const response = await adminQuaeyIdupdateAPI(lastAdmin._id, updatedData);
+// updateAdminData
+    const response = await adminQuaeyIdupdateAPI(userId, updatedData);
     
     // Check for successful update (200-299 status code or your API's success indicator)
     if (response.status >= 200 && response.status < 300) {
@@ -95,24 +131,6 @@ const handleAfterPrint = async () => {
 };
 
 
-  const convertToImage = async () => {
-    if (printRef.current) {
-      try {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        const dataUrl = await toPng(printRef.current, {
-          quality: 1,
-          pixelRatio: 2,
-          backgroundColor: '#ffffff'
-        });
-        setImageUrl(dataUrl);
-      } catch (error) {
-        console.error('Error converting to image:', error);
-        setError('Failed to convert to image');
-      }
-    }
-  };
-
 
 const handlePrint = async () => {
   try {
@@ -120,6 +138,17 @@ const handlePrint = async () => {
     if (!printRef.current || !queryData) {
       setError('No data available to print');
       return;
+    }
+try {
+      const response = await queryDataAPI(queryData);
+      if (!response.data.success) {
+        throw new Error(response.data.message || 'Failed to save query data');
+      }
+      console.log('Data saved to query API:', response.data);
+    } catch (apiError) {
+      console.error('Error saving to query API:', apiError);
+      // You might choose to continue with printing even if API fails
+      // or handle it differently based on your requirements
     }
 
     const printWindow = window.open('', '_blank');
@@ -279,23 +308,10 @@ value={`DISP${data.dispatchNo}`}  size={55}
           </div>
         )}
       </div>
-      <div style={{display:'flex',gap:'345px'}} className="header-info">
+      <div style={{display:'flex',gap:'342px'}} className="header-info">
         <p className="font-semibold" style={{ marginLeft: '-0px' }}>HSN Code: {data.hsnCode || "-"}</p>
-      <p style={{ marginLeft: '-27px' }}>
-  Date & Time of Dispatch : {data.travellingDate ? 
-    new Date(data.travellingDate).toLocaleString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second:'2-digit',
-      hour12: true
-    }).replace(/\//g, '-')
-    .replace(',', '')
-    .replace(/\s?[AP]M$/i, '')
-    : "-"}
-    
+  <p style={{ marginLeft: '-27px' }}>
+  Date & Time of Dispatch: {queryData.formattedTravellingDate || "-"}
 </p>
 
 

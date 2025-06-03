@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './QueryEntry.css';
-import { adminAddQuaeyAPI, getLastSerialNumberAPI } from '../../Server/allAPI';
+import { adminAddQuaeyAPI, checkLesseeIdExists, getLastSerialNumberAPI, updateAdminData } from '../../Server/allAPI';
 import { useNavigate } from 'react-router-dom';
 
 function QueryEntry() {
@@ -96,31 +96,65 @@ function QueryEntry() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      // Create a copy of formData and decrement SerialNo and dispatchNo by 1
-      const submissionData = {
-        ...formData,
-        SerialNo: (parseInt(formData.SerialNo) - 1).toString(),
-        dispatchNo: (parseInt(formData.dispatchNo) - 1).toString()
-      };
+  try {
+    // First check if lesseeId exists
+    const checkResponse = await checkLesseeIdExists(formData.lesseeId);
+    
+    const submissionData = {
+      ...formData,
+      SerialNo: (parseInt(formData.SerialNo) - 1).toString(),
+      dispatchNo: (parseInt(formData.dispatchNo) - 1).toString()
+    };
 
-      const response = await adminAddQuaeyAPI(submissionData);
-
-      if (response.status === 201) {
-        alert("Successfully Submitted Data");
-        navigate('/userdispatch');
-      } else {
-        alert('Submission failed. Please check your data.');
+    if (checkResponse.data.exists) {
+      // If user exists, ask if they want to update
+      const shouldUpdate = window.confirm(
+        `User with Lessee ID ${formData.lesseeId} already exists.\nDo you want to update the existing record?`
+      );
+      
+      if (shouldUpdate) {
+        // Update existing user
+        const updateResponse = await updateAdminData(submissionData);
+        if (updateResponse.status === 200) {
+          alert("User data updated successfully");
+          navigate('/');
+        } else {
+          alert('Update failed. Please try again.');
+        }
       }
-    } catch (error) {
-      console.error('Submission Error:', error);
-      alert('Error occurred while submitting.');
+      return;
     }
-  };
 
+    // If user doesn't exist, create new
+    const response = await adminAddQuaeyAPI(submissionData);
+    console.log(response.data.data);
+    
+    if (response.status === 201) {
+      alert("Successfully added new user");
+      // Navigate to register page with the new user's data
+      navigate('/register', { 
+        state: { 
+          newUserData: {
+            _id: response.data.data._id,
+            lesseeId: formData.lesseeId,
+            lesseeName: formData.lesseeName
+          }
+        } 
+      });
+      
+    } else {
+      alert('Submission failed. Please check your data.');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error occurred while processing your request.');
+  }
+};
+
+// Add this new API function to your allAPI.js
   return (
     <div className="lease-form-container">
       <h2>Lease Information</h2>

@@ -3,6 +3,7 @@ body, html {
   margin: 0;
   padding: 0;
   height: 100%;
+ 
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f3f4f6;
   box-sizing: border-box;
@@ -23,8 +24,8 @@ body, html {
   background: #fff;
   padding: 30px 25px;
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  width: 100%;
+  box-shadow:  rgba(116, 36, 36, 0.1);
+  width: 700px;
   max-width: 400px;
 }
 

@@ -30,12 +30,16 @@ body {
   background-color: white;
   border-radius: 0px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  margin-left:-756px;
+  margin-left:-0px;
+  ;
 }
+
+
 
 .logo img {
   width: 100%;
   height: auto;
+  width: 200px;
 }
 
 h2 {
@@ -55,6 +59,14 @@ input {
   margin: 5px 0 20px;
   border: 1px solid #ddd;
   border-radius: 4px;
+}
+.password-toggle-icon{
+  position: absolute;
+  right:555px;
+  top: 51%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #666;
 }
 
 .toggle-password {
@@ -77,10 +89,7 @@ input {
   cursor: pointer;
   background-color: #021224;
 }
-.other-payment-button {
- margin-top: 10px;
- margin-left: 200px;
-}
+
 
 .login-button {
   background-color: #00346e;
@@ -93,15 +102,6 @@ input {
 
 }
 
-.other-payment-button {
-  background-color: #00346e;
-  color: white;
-  width: 90px;
-  
-}
-.other-payment-button:hover{
-  background-color: #00346e;
-}
 
 .register-link {
   text-align: center;

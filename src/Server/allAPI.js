@@ -84,6 +84,9 @@ export const updateDispatchNumberAPI = async (reqBody) => {
       export const queryGetAPI = async (reqBody) => {
         return await commonAPI("GET", `${SERVER_URL}/queryget`,reqBody);
       };      
+      export const getQueriesByLessee = async (lesseeId) => {
+        return await commonAPI("GET", `${SERVER_URL}/getQueriesByLessee/${lesseeId}`);
+      };      
 
 
 
@@ -91,6 +94,34 @@ export const adminAddQuaeyAPI = async (reqBody) => {
   return await commonAPI("POST", `${SERVER_URL}/adminadd`,reqBody);
 };
     
+
+export const checkLesseeIdExists = async (lesseeId) => {
+  return await commonAPI("GET", `${SERVER_URL}/check-lessee/${lesseeId}`);
+};
+// In your allAPI.js
+export const updateAdminData = async (data) => {
+  return await commonAPI("PUT", `${SERVER_URL}/update-admin`, data);
+};
+export const updateAdminWithCredentials = async (data) => {
+  return await commonAPI("PUT", `${SERVER_URL}/admin/update-credentials`, data);
+};
+
+export const loginAdmin = async (data) => {
+  return await commonAPI("POST", `${SERVER_URL}/loginAdmin`, data);
+};
+
+
+// export const updateAdminWithCredentials = async (data) => {
+//   try {
+//   return  const response = await axios.put(`${baseURL}/admin/update-credentials`, data);
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+  // adminQuaeyIdupdateAPI,
+  // adminAddQuaeyLastAPI
+
+
 export const adminAddQuaeyAllAPI = async (reqBody) => {
   return await commonAPI("GET", `${SERVER_URL}/adminadd`,reqBody);
 };
@@ -98,11 +129,10 @@ export const adminAddQuaeyAllAPI = async (reqBody) => {
 export const adminAddQuaeyLastAPI = async (reqBody) => {
   return await commonAPI("GET", `${SERVER_URL}/admingetlast`,reqBody);
 };
-    
+    //  adminAddQuaeyByIdAPI, updateAdminData 
 export const adminAddQuaeyByIdAPI = async (id) => {
   return await commonAPI("GET", `${SERVER_URL}/adminadd/${id}`,);
 };
-
 
 
 export const adminQuaeyIdupdateAPI = async (id, updatedData) => {

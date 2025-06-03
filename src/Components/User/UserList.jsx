@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './UserList.css';
 import { deleteQueryAPI, queryGetAPI } from '../../Server/allAPI';
 
 function UserList() {
+  const location = useLocation();
+  const { lesseeId } = location.state || {};
+  console.log("Current lesseeId:", lesseeId);
+  
   const [queries, setQueries] = useState([]);
   const [filteredQueries, setFilteredQueries] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -18,12 +22,26 @@ function UserList() {
   }, []);
 
   useEffect(() => {
-    const results = queries.filter(query => 
-      (query.SerialNo && query.SerialNo.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (query.dispatchNo && query.dispatchNo.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    // First filter by lesseeId, then by search term
+    let results = queries;
+    
+    // Filter by lesseeId if it exists
+    if (lesseeId) {
+      results = results.filter(query => 
+        query.lesseeId === lesseeId
+      );
+    }
+    
+    // Then apply search filter if search term exists
+    if (searchTerm) {
+      results = results.filter(query => 
+        (query.SerialNo && query.SerialNo.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (query.dispatchNo && query.dispatchNo.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+    
     setFilteredQueries(results);
-  }, [searchTerm, queries]);
+  }, [searchTerm, queries, lesseeId]);
 
   const fetchAllQueries = async () => {
     try {
@@ -33,7 +51,6 @@ function UserList() {
       
       if (response.data && Array.isArray(response.data)) {
         setQueries(response.data);
-        setFilteredQueries(response.data);
       } else {
         throw new Error("No data received or data is not in expected format");
       }
@@ -55,12 +72,12 @@ function UserList() {
     }));
   };
 
-const handleView = (query) => {
-  navigate(`/lastuser/${query._id}`);
-};
+  const handleView = (query) => {
+    navigate(`/lastuser/${query._id}`, { state: { lesseeId } });
+  };
 
   const handleAddNew = () => {
-    navigate('/userdispatch');
+    navigate('/userdispatch', { state: { lesseeId } });
   };
 
   const handleRefresh = () => {
@@ -101,70 +118,68 @@ const handleView = (query) => {
   }
 
   return (
-<div className="user-list-container">
-    <h2>All Dispatch Entries</h2>
+    <div className="user-list-container">
+      <h2>All Dispatch Entries {lesseeId ? `for Lessee ID: ${lesseeId}` : ''}</h2>
 
-  <div className="header-section">
-    
-    <div className="search-bar">
-      <input
-        type="text"
-        placeholder="Search"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
+      <div className="header-section">
+        <div className="search-bar">
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        <div className="button-group">
+          <button onClick={handleAddNew} className="action-btn add-btn">
+            Add 
+          </button>
+          <button onClick={handleRefresh} className="action-btn refresh-btn">
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      {filteredQueries.length === 0 ? (
+        <p>No dispatch records found{lesseeId ? ` for Lessee ID: ${lesseeId}` : ''}.</p>
+      ) : (
+        <div className="table-wrapper">
+          <table className="dispatch-table">
+            <thead>
+              <tr>
+                <th>Permit Number</th>
+                <th>Dispatch Number</th>
+                <th>MineCode</th>
+                <th>Security Paper Number</th>
+                <th>Mineral</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredQueries.map(query => (
+                <tr key={query._id}>
+                  <td>{renderCell(query, 'bulkPermitNo')}</td>
+                  <td>{`DISP${query.dispatchNo}`}</td>
+                  <td>{renderCell(query, 'minecode')}</td>
+                  <td>{`TN0054${query.SerialNo}`}</td>
+                  <td>{renderCell(query, 'mineralName')}</td>
+                  <td className='action-butt'>
+                    <button onClick={() => handleView(query)}>View</button>
+                    <button
+                      onClick={() => handleDelete(query._id)}
+                      className="delete-btn"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
-
-    <div className="button-group">
-      <button onClick={handleAddNew} className="action-btn add-btn">
-        Add 
-      </button>
-      <button onClick={handleRefresh} className="action-btn refresh-btn">
-        Refresh
-      </button>
-    </div>
-  </div>
-
-
-  {filteredQueries.length === 0 ? (
-    <p>No dispatch records found.</p>
-  ) : (
-    <div className="table-wrapper">
-      <table className="dispatch-table">
-        <thead>
-          <tr>
-            <th>Permit Number</th>
-            <th>Dispatch Number</th>
-            <th>MineCode</th>
-            <th>Security Paper Number</th>
-            <th>Mineral</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredQueries.map(query => (
-            <tr key={query._id}>
-              <td>{renderCell(query, 'bulkPermitNo')}</td>
-              <td>{`DISP${query.dispatchNo}`}</td>
-              <td>{renderCell(query, 'minecode')}</td>
-              <td>{`TN0054${query.SerialNo}`}</td>
-              <td>{renderCell(query, 'mineralName')}</td>
-              <td className='action-butt'>
-                  <button onClick={() => handleView(query)}>View</button>
-                  <button
-                    onClick={() => handleDelete(query._id)}
-                    className="delete-btn"
-                  >
-                    Delete
-                  </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )}
-</div>
   );
 }
 

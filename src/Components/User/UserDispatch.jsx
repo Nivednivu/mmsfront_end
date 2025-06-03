@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import './UserDispatch.css';
-import { adminAddQuaeyLastAPI, queryDataAPI } from '../../Server/allAPI';
-import { useNavigate } from 'react-router-dom';
+import { adminAddQuaeyByIdAPI, updateAdminData } from '../../Server/allAPI';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 function UserDispatch() {
-const navigate = useNavigate();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { userData } = location.state || {};
+console.log(userData);
 
   const getCurrentDateTime = () => {
     const now = new Date();
@@ -31,31 +34,42 @@ const navigate = useNavigate();
   };
 
   const [autoDate, setAutoDate] = useState(true);
-  const [queryData, setQueryData] = useState(null);
+  const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState(initialFormState);
 
-  // Fetch data when component mounts
+  // Fetch user-specific data when component mounts
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchUserData = async () => {
       try {
         setLoading(true);
-        const adminResponse = await adminAddQuaeyLastAPI();
-        console.log('Admin Query Data:', adminResponse.data.data);
         
-        if (adminResponse.data.data) {
-          setQueryData(adminResponse.data.data);
+        if (!userData?.id) {
+          alert('User data not available. Please login again.');
+          navigate('/');
+          return;
+        }
+
+        // Fetch user-specific data using their id
+        const response = await adminAddQuaeyByIdAPI(userData.id);
+        console.log(response.data);
+        
+        if (response.data) {
+          setUserDetails(response.data);
+        } else {
+          throw new Error('No user data received');
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
-        alert('Failed to load required data');
+        console.error('Error fetching user data:', error);
+        alert('Failed to load user data');
+        navigate('/');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, []);
+    fetchUserData();
+  }, [userData, navigate]);
 
   // Auto-update date time
   useEffect(() => {
@@ -98,82 +112,82 @@ const navigate = useNavigate();
     }));
   };
 
-
 const handleSubmit = async (e) => {
   e.preventDefault();
 
-  if (!queryData) {
-    alert('Required data is not loaded yet. Please wait...');
+  if (!userDetails) {
+    alert('User data is not loaded yet. Please wait...');
     return;
   }
 
   try {
-    // Get current numbers
-    const currentSerial = parseInt(queryData.SerialNo || '0', 10);
-    const currentDispatch = parseInt(queryData.dispatchNo || '0', 10);
-    const serialEnd = parseInt(queryData.SerialEndNo || '0', 10);
-    // const dispatchEnd = parseInt(queryData.dispatchEndNo || '0', 10);
+    setLoading(true);
 
-    // Check if we've reached the end of the ranges
+    // Get current and end serial/dispatch numbers
+    const currentSerial = parseInt(userDetails.SerialNo || '0', 10);
+    const currentDispatch = parseInt(userDetails.dispatchNo || '0', 10);
+    const serialEnd = parseInt(userDetails.SerialEndNo || '0', 10);
+    // const dispatchEnd = parseInt(userDetails.dispatchEndNo || '0', 10);
+
+    // Check if serial number has reached the limit
     if (serialEnd > 0 && currentSerial >= serialEnd) {
       alert('Serial number range has been exhausted. Please contact admin.');
       return;
     }
 
+    // If you want to check dispatch range later, uncomment this
     // if (dispatchEnd > 0 && currentDispatch >= dispatchEnd) {
     //   alert('Dispatch number range has been exhausted. Please contact admin.');
     //   return;
     // }
 
-    // Calculate new numbers (only increment if not at end)
+    // Compute new values (respecting the serial end limit)
     const newSerial = serialEnd > 0 ? Math.min(currentSerial + 1, serialEnd) : currentSerial + 1;
-      const newDispatch = currentDispatch + 1;
-    // Merge form and query data
-    const mergedData = {
-      ...queryData,
+    const newDispatch = currentDispatch + 1;
+
+    // Merge form data with user info and updated serials
+    const dispatchData = {
       ...formData,
+      userId: userData.id,
+      lesseeId: userData.lesseeId,
       SerialNo: newSerial,
       dispatchNo: newDispatch,
       createdAt: new Date().toISOString()
     };
 
-    // Submit the merged data
-    const response = await queryDataAPI(mergedData);
+    console.log(userDetails, "userDetails");
+    console.log(dispatchData, "dispatchData");
+
+    const response = await updateAdminData(dispatchData);
+    console.log(response.data, "queryDataAPI");
 
     if (response.status === 200 || response.status === 201) {
-      alert("Successfully Submitted");
-      navigate('/userview');
+      alert("Dispatch submitted successfully");
 
-      // Reset form after successful submit
-      setFormData({
-        deliveredTo: '',
-        vehicleNo: '',
-        vehicleType: '',
-        totalDistance: '',
-        travellingDate: getCurrentDateTime(),
-        requiredTime: '',
-        quantity: '',
-        driverName: '',
-        driverPhoneNo: '',
-        driverLicenseNo: '',
-        destinationAddress: '',
-        driverSignature: '',
-        via: ''
-      });
-
-      // Update local queryData with new numbers
-      setQueryData(prev => ({
-        ...prev,
+      // Update local state with new serials
+      const updatedUserDetails = {
+        ...userDetails,
         SerialNo: newSerial,
         dispatchNo: newDispatch
-      }));
+      };
+      setUserDetails(updatedUserDetails);
 
+      navigate('/userview', {
+        state: {
+          userData: response.data
+        }
+      });
+
+      // Reset form
+      setFormData(initialFormState);
     } else {
       throw new Error('Submission failed');
     }
   } catch (error) {
-    console.error('Error submitting data:', error);
-    alert('Failed to submit dispatch data');
+    console.error('Error submitting dispatch:', error);
+    alert(error.response?.data?.message || 'Failed to submit dispatch data');
+  } finally {
+    setLoading(false);
   }
 };
 
@@ -296,10 +310,9 @@ const handleSubmit = async (e) => {
           </div>
         </div>
 
-        <button type="submit" disabled={!queryData}>
-          Submit
-        </button>
-      </form>
+  <button type="submit" disabled={loading}>
+            {loading ? 'Submitting...' : 'Submit'}
+          </button>      </form>
     </div>
   );
 }

@@ -174,7 +174,7 @@ const ForgotPasswordPage = () => {
         )}
 
         <div className="back-to-login">
-          Remembered your password? <a href="/login">Login here</a>
+          Remembered your password? <a href="/">Login here</a>
         </div>
       </div>
     </div>

@@ -1,107 +1,110 @@
-/* Sidebar.css */
 .app-container {
-    display: flex;
-    min-height: 100vh;
-  }
-  
-  .sidebar {
-    width: 250px;
-    background-color: #f4f4f4;
-    padding: 20px;
-    position: fixed;
-    height: 100vh;
-    overflow-y: auto;
-  }
-  
-  .sidebar h2 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .sidebar ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .sidebar h5 {
-    margin: 15px 0 5px 0;
-    color: #555;
-  }
-  
-  .sidebar ul li {
-    padding: 8px 10px;
-    cursor: pointer;
-    border-radius: 4px;
-  }
-  
-  .sidebar ul li:hover {
-    background-color: #ddd;
-  }
-  
-  .sidebar ul li a {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-  }
-  
-  .main-content {
-    margin-left: 250px;
-    padding: 20px;
-    flex: 1;
-    transition: all 0.3s ease;
-  }
-  
-  /* VehicleManagement.css */
-  .vehicle-management {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .vehicle-management h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #333;
-  }
-  
-  .form-group {
-    margin-bottom: 15px;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-  }
-  
-  .form-group input,
-  .form-group select {
-    width: 100%;
-    padding: 8px 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-  }
-  
-  .form-group select {
-    height: 36px;
-  }
-  
-  button[type="submit"] {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    width: 100%;
-    margin-top: 10px;
-  }
-  
-  button[type="submit"]:hover {
-    background-color: #45a049;
-  }
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #f4f4f4;
+  padding: 20px;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+  left: 0;
+  top: 0;
+}
+
+.sidebar h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0; 
+}
+
+.sidebar h5 {
+  margin: 15px 0 5px 0;
+  color: #555;
+}
+
+.sidebar ul li {
+  padding: 8px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-bottom: 5px; 
+}
+
+.sidebar ul li:hover {
+  background-color: #ddd;
+}
+
+.sidebar ul li a {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.main-content {
+  margin-left: 250px;
+  padding: 20px;
+  flex: 1;
+  transition: all 0.3s ease;
+}
+
+
+.vehicle-management {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.vehicle-management h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.form-group select {
+  height: 36px;
+}
+
+button[type="submit"] {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+button[type="submit"]:hover {
+  background-color: #45a049;
+}
