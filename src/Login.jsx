@@ -73,7 +73,7 @@ const handleLogin = async (e) => {
                 className="password-toggle-icon"
                 onClick={() => !isLoading && setShowPassword(!showPassword)}
               >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
+{/*                 {showPassword ? <FaEyeSlash /> : <FaEye />} */}
               </span>
               <input
                 type={showPassword ? 'text' : 'password'}
