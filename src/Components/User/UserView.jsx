@@ -217,7 +217,7 @@ try {
   gap:12px;
 }
             .query-table {
-              width: 637px;
+              width: 645px;
               border-collapse: collapse;
               font-size: 8px;
               border:0.5px solid black;
