@@ -168,7 +168,7 @@ try {
             @page { 
               size: A4; 
               margin: 4mm; /* Reduced margin for more space */
-              margin-left:75px
+              margin-left:72px
                
             }
               body{
@@ -217,7 +217,7 @@ try {
   gap:12px;
 }
             .query-table {
-              width: 623px;
+              width: 627px;
               border-collapse: collapse;
               font-size: 8px;
               border:0.5px solid black;
@@ -232,7 +232,7 @@ try {
               line-height: 1.2;
               font-weight:500;
               
-              font-size:10px;
+              font-size:9px;
               color:black;
             }
               .query-table input[type="text"] {
