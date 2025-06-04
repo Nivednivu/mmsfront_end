@@ -59,7 +59,7 @@ console.log(userId);
             const twelveHour = hours % 12 || 12; // Convert to 12-hour format (1-12)
             
             return `${pad(date.getDate())}-${pad(date.getMonth() + 1)}-${date.getFullYear()} ` +
-                   ${pad(twelveHour)}:${pad(date.getMinutes())}:${randomSeconds};
+                  ` ${pad(twelveHour)}:${pad(date.getMinutes())}:${randomSeconds}`;
           })()
         : "-";
 
@@ -126,7 +126,7 @@ const handleAfterPrint = async () => {
     }
   } catch (err) {
     console.error('Failed to update serial number:', err);
-    setError(Update failed: ${err.message});
+    setError(`Update failed: ${err.message}`);
   }
 };
 
@@ -295,12 +295,12 @@ try {
 
       <div className='img' style={{display:'flex', marginTop:'60px',marginLeft:'452px'}} >
         <div className='generatediv'>
-<h4 style={{marginLeft:'8px',marginTop:'15px',fontSize:'14px', fontWeight:'600',letterSpacing:'0px'}} className="generate-number" >{TN0054${data.SerialNo}}</h4>
+<h4 style={{marginLeft:'8px',marginTop:'15px',fontSize:'14px', fontWeight:'600',letterSpacing:'0px'}} className="generate-number" >{`TN0054${data.SerialNo}`}</h4>
         </div>
         {data.dispatchNo && (
           <div style={{marginLeft:'30px',fontWeight:'500'}} >
             <QRCodeSVG 
-value={DISP${data.dispatchNo}}  size={55}
+value={`DISP${data.dispatchNo}`}  size={55}
   level="H"
 
 />
@@ -323,7 +323,7 @@ value={DISP${data.dispatchNo}}  size={55}
             <td>Lessee Id : {data.lesseeId}</td>
             <td>Minecode : {data.minecode}</td>
             <td>Lease Area Details </td>
-            <td >Serial No: <span className='serial' style={{letterSpacing:'1px',fontSize:'8px'}}>{TN0054${data.SerialNo}}</span></td>
+            <td >Serial No: <span className='serial' style={{letterSpacing:'1px',fontSize:'8px'}}>{`TN0054${data.SerialNo}`}</span></td>
           </tr>
           <tr>
             <td>Lessee Name and Address :</td>
@@ -357,7 +357,7 @@ value={DISP${data.dispatchNo}}  size={55}
           </tr>
           <tr>
             <td>Dispatch Slip No :</td>
-            <td>{DISP${data.dispatchNo}}</td>
+            <td>{`DISP${data.dispatchNo}`}</td>
             <td>Within Tamil Nadu</td>
             <td>{data.withinTamilNadu}</td>
           </tr>
