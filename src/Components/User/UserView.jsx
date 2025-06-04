@@ -217,7 +217,7 @@ try {
   gap:12px;
 }
             .query-table {
-              width: 627px;
+              width: 628px;
               border-collapse: collapse;
               font-size: 8px;
               border:0.5px solid black;
@@ -232,7 +232,7 @@ try {
               line-height: 1.2;
               font-weight:500;
               
-              font-size:9px;
+              font-size:10px;
               color:black;
             }
               .query-table input[type="text"] {
