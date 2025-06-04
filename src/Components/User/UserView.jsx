@@ -168,7 +168,7 @@ try {
             @page { 
               size: A4; 
               margin: 4mm; /* Reduced margin for more space */
-              margin-left:65px
+              margin-left:63px
                
             }
               body{
@@ -222,7 +222,7 @@ try {
               font-size: 8px;
               border:0.5px solid black;
               margin:right:20px
-              
+              height:70px
                
                justtify-content:center;
             }
