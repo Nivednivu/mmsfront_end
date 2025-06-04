@@ -168,7 +168,7 @@ try {
             @page { 
               size: A4; 
               margin: 4mm; /* Reduced margin for more space */
-              margin-left:72px
+              margin-left:70px
                
             }
               body{
@@ -217,7 +217,7 @@ try {
   gap:12px;
 }
             .query-table {
-              width: 630px;
+              width: 634px;
               border-collapse: collapse;
               font-size: 8px;
               border:0.5px solid black;
@@ -228,7 +228,7 @@ try {
             }
             .query-table td {
               border: 1.5px solid black;
-              padding: 3.2px; /* Reduced padding */
+              padding: 5px; /* Reduced padding */
               line-height: 1.2;
               font-weight:500;
               
