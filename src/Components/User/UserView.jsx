@@ -228,7 +228,7 @@ try {
             }
             .query-table td {
               border: 1.5px solid black;
-              padding: 5px; /* Reduced padding */
+              padding: 3.2px; /* Reduced padding */
               line-height: 1.2;
               font-weight:500;
               
