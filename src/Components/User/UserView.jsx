@@ -295,7 +295,7 @@ try {
 
       <div className='img' style={{display:'flex', marginTop:'60px',marginLeft:'452px'}} >
         <div className='generatediv'>
-<h4 style={{marginLeft:'8px',marginTop:'15px',fontSize:'14px', fontWeight:'600',letterSpacing:'0px'}} className="generate-number" >{`TN0054${data.SerialNo}`}</h4>
+<h4 style={{marginLeft:'15px',marginTop:'15px',fontSize:'14px', fontWeight:'600',letterSpacing:'0px'}} className="generate-number" >{`TN0054${data.SerialNo}`}</h4>
         </div>
         {data.dispatchNo && (
           <div style={{marginLeft:'30px',fontWeight:'500'}} >
@@ -308,7 +308,7 @@ value={`DISP${data.dispatchNo}`}  size={55}
           </div>
         )}
       </div>
-      <div style={{display:'flex',gap:'352px'}} className="header-info">
+      <div style={{display:'flex',gap:'355px'}} className="header-info">
         <p className="font-semibold" style={{ marginLeft: '-0px' }}>HSN Code: {data.hsnCode || "-"}</p>
   <p style={{ marginLeft: '-27px' }}>
   Date & Time of Dispatch: {queryData.formattedTravellingDate || "-"}
