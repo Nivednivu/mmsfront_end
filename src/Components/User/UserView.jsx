@@ -228,11 +228,11 @@ try {
             }
             .query-table td {
               border: 1.5px solid black;
-              padding: 3.5px; /* Reduced padding */
+              padding: 4px; /* Reduced padding */
               line-height: 1.2;
               font-weight:500;
               
-              font-size:10px;
+              font-size:9px;
               color:black;
             }
               .query-table input[type="text"] {
@@ -317,13 +317,13 @@ value={`DISP${data.dispatchNo}`}  size={55}
 
       </div>
       <div className='text'>
-      <table className="query-table">
+      <table style={{marginTop:'-3px'}} className="query-table">
         <tbody className="table-body">
           <tr>
-            <td>Lessee Id : {data.lesseeId}</td>
-            <td>Minecode : {data.minecode}</td>
-            <td>Lease Area Details </td>
-            <td >Serial No: <span className='serial' style={{letterSpacing:'1px',fontSize:'8px'}}>{`TN0054${data.SerialNo}`}</span></td>
+            <td style={{width:'130px'}}>Lessee Id : {data.lesseeId}</td>
+            <td style={{width:'130px'}}>Minecode : {data.minecode}</td>
+            <td style={{width:'130px'}}>Lease Area Details </td>
+            <td style={{width:'130px'}}>Serial No: <span className='serial' style={{letterSpacing:'1px',fontSize:'8px'}}>{`TN0054${data.SerialNo}`}</span></td>
           </tr>
           <tr>
             <td>Lessee Name and Address :</td>

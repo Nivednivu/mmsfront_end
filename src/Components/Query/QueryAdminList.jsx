@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './QueryAdminList.css';
 import { adminAddQuaeyAllAPI, adminDeleteQueryByIdAPI } from '../../Server/allAPI';
+import { useNavigate } from 'react-router-dom';
 
 function AdminQueryList() {
   const [entries, setEntries] = useState([]);
@@ -8,6 +9,7 @@ function AdminQueryList() {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchEntries();
@@ -53,6 +55,10 @@ function AdminQueryList() {
     }
   };
 
+  const handleView = (id) => {
+    navigate(`/adminqview/${id}`);
+  };
+
   const filteredEntries = entries.filter(entry => {
     const searchLower = searchTerm.toLowerCase();
     return (
@@ -76,7 +82,6 @@ function AdminQueryList() {
   if (error) {
     return <div className="error-message">{error}</div>;
   }
-console.log(entries);
 
   return (
     <div className="admin-list-container">
@@ -136,7 +141,7 @@ console.log(entries);
                   <td>
                     {entry.signature ? (
                       <img 
-                      style={{width:'60px',height:'40px'}}
+                        style={{width:'60px',height:'40px'}}
                         src={entry.signature} 
                         alt="Signature" 
                         className="signature-thumbnail"
@@ -146,12 +151,20 @@ console.log(entries);
                     )}
                   </td>
                   <td>
-                    <button 
-                      onClick={() => handleDelete(entry._id)}
-                      className="delete-btn"
-                    >
-                      Delete
-                    </button>
+                    <div className="action-buttons">
+                      <button 
+                        onClick={() => handleView(entry._id)}
+                        className="view-btn"
+                      >
+                        View
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(entry._id)}
+                        className="delete-btn"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

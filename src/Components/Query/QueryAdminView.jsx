@@ -9,6 +9,7 @@ function QueryAdminView() {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
     const fetchEntry = async () => {
@@ -16,6 +17,9 @@ function QueryAdminView() {
         const response = await adminAddQuaeyByIdAPI(id);
         if (response.status === 200) {
           setEntry(response.data);
+          if (response.data.signature) {
+            setImagePreview(response.data.signature);
+          }
         } else {
           setError('Failed to fetch entry details. Please try again.');
         }
@@ -31,6 +35,18 @@ function QueryAdminView() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEntry((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+        setEntry(prev => ({ ...prev, signature: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleUpdate = async () => {
@@ -54,6 +70,60 @@ function QueryAdminView() {
       .replace(/^./, (str) => str.toUpperCase())
       .replace('Hs n', 'HSN')
       .replace('Sf no', 'SF.No');
+  };
+
+  const renderField = (key, value) => {
+    if (key === 'signature') {
+      return (
+        <div className="signature-field">
+          {isEditing ? (
+            <>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="image-upload-input"
+                id="signature-upload"
+              />
+              <label htmlFor="signature-upload" className="image-upload-label">
+                {imagePreview ? 'Change Signature' : 'Upload Signature'}
+              </label>
+              {imagePreview && (
+                <img 
+                  src={imagePreview} 
+                  alt="Signature Preview" 
+                  className="signature-preview"
+                />
+              )}
+            </>
+          ) : (
+            imagePreview ? (
+              <img 
+                src={imagePreview} 
+                alt="Signature" 
+                className="signature-image"
+              />
+            ) : (
+              <span className="empty-value">No signature</span>
+            )
+          )}
+        </div>
+      );
+    }
+    
+    return isEditing ? (
+      <input
+        type="text"
+        name={key}
+        value={value || ''}
+        onChange={handleChange}
+        className="detail-input"
+      />
+    ) : (
+      <div className="detail-value">
+        {value || <span className="empty-value">Not specified</span>}
+      </div>
+    );
   };
 
   return (
@@ -89,19 +159,7 @@ function QueryAdminView() {
                 return (
                   <div className="detail-row" key={key}>
                     <label className="detail-label">{formatLabel(key)}</label>
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        name={key}
-                        value={value || ''}
-                        onChange={handleChange}
-                        className="detail-input"
-                      />
-                    ) : (
-                      <div className="detail-value">
-                        {value || <span className="empty-value">Not specified</span>}
-                      </div>
-                    )}
+                    {renderField(key, value)}
                   </div>
                 );
               })}
