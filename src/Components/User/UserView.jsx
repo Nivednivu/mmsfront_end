@@ -209,7 +209,7 @@ try {
               }
   .serial{
  font-family: "DotGothic16", sans-serif;
-  font-weight: 750;
+  font-weight: 550;
   font-style: italic;
   transform: skewX(-5deg);
   font-size:4px
