@@ -438,7 +438,7 @@ value={`DISP${data.dispatchNo}`}  size={55}
             <td>Driver Phone No :</td>
             <td>{data.driverPhoneNo}</td>
             <td>Lessee / Authorized Person Name :</td>
-            <td>{data.authorizedPersonName}</td>
+            <td>{data.lesseeName}</td>
           </tr>
           <tr>
             <td style={{ textAlign: 'left', verticalAlign: 'top'}} >Driver Signature :</td>
