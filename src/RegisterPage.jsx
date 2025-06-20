@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './RegistrationPage.css';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { updateAdminWithCredentials } from './Server/allAPI';
+import { adminAddQuaeyAPI, updateAdminWithCredentials } from './Server/allAPI';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const RegisterPage = () => {
@@ -16,19 +16,10 @@ const RegisterPage = () => {
     confirmPassword: '',
   });
 
+  const [formData, setFormData] = useState(newUserData || {});
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if (newUserData) {
-      setUser(prev => ({
-        ...prev,
-        fullName: newUserData.lesseeName || '',
-        username: newUserData.lesseeId || ''
-      }));
-    }
-  }, [newUserData]);
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -45,32 +36,41 @@ const RegisterPage = () => {
       return;
     }
 
-    if (!newUserData?._id) {
-      alert("No user ID found. Please start the registration process from the beginning.");
-      return;
-    }
-
-    const reqBody = {
-      userId: newUserData._id,
-      fullname: fullName,
-      email,
-      lesseeId: username,
-      password
-    };
-
     setIsLoading(true);
     try {
+      // First create the admin query entry
+      const submissionData = {
+        ...formData,
+        SerialNo: (parseInt(formData.SerialNo) - 1).toString(),
+        dispatchNo: (parseInt(formData.dispatchNo) - 1).toString()
+      };
+
+      const queryResponse = await adminAddQuaeyAPI(submissionData);
+      
+      if (queryResponse.status !== 201) {
+        throw new Error('Failed to save query data');
+      }
+
+      // Then register the user credentials
+      const reqBody = {
+        userId: queryResponse.data.data._id,
+        fullname: fullName,
+        email,
+        lesseeId: username,
+        password
+      };
+
       const result = await updateAdminWithCredentials(reqBody);
 
       if (result.status === 200) {
         alert("Registration successful! You can now login.");
         navigate('/');
       } else {
-        alert("Registration failed. Please try again.");
+        throw new Error('Failed to register user');
       }
     } catch (error) {
       console.error("Registration error:", error);
-      alert(error.response?.data?.message || "Server error. Please try again later.");
+      alert(error.response?.data?.message || "Registration failed. Please try again.");
     } finally {
       setIsLoading(false);
     }

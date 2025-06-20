@@ -59,7 +59,7 @@ console.log(userId);
             const twelveHour = hours % 12 || 12; // Convert to 12-hour format (1-12)
             
             return `${pad(date.getDate())}-${pad(date.getMonth() + 1)}-${date.getFullYear()} ` +
-                   `${pad(twelveHour)}:${pad(date.getMinutes())}:${randomSeconds}`;
+                  ` ${pad(twelveHour)}:${pad(date.getMinutes())}:${randomSeconds}`;
           })()
         : "-";
 
@@ -168,7 +168,7 @@ try {
             @page { 
               size: A4; 
               margin: 4mm; /* Reduced margin for more space */
-              margin-left:75px
+              margin-left:70px
                
             }
               body{
@@ -217,18 +217,18 @@ try {
   gap:12px;
 }
             .query-table {
-              width: 623px;
+              width: 635px;
               border-collapse: collapse;
               font-size: 8px;
               border:0.5px solid black;
               margin:right:20px
-              
+             
                
                justtify-content:center;
             }
             .query-table td {
               border: 1.5px solid black;
-              padding: 3.2px; /* Reduced padding */
+              padding: 3.5px; /* Reduced padding */
               line-height: 1.2;
               font-weight:500;
               
@@ -293,12 +293,12 @@ try {
   const renderTable = (data, isDuplicate = false) => (
     <div className="fontc table-wrapper" style={isDuplicate ? { marginTop: '-30px' } : {}}>
 
-      <div className='img' style={{display:'flex', marginTop:'70px',marginLeft:'452px'}} >
+      <div className='img' style={{display:'flex', marginTop:'60px',marginLeft:'452px'}} >
         <div className='generatediv'>
-<h4 style={{marginLeft:'10px',marginTop:'15px',fontSize:'14px', fontWeight:'600',letterSpacing:'0px'}} className="generate-number" >{`TN0054${data.SerialNo}`}</h4>
+<h4 style={{marginLeft:'8px',marginTop:'15px',fontSize:'14px', fontWeight:'600',letterSpacing:'0px'}} className="generate-number" >{`TN0054${data.SerialNo}`}</h4>
         </div>
         {data.dispatchNo && (
-          <div style={{marginLeft:'23px',fontWeight:'500'}} >
+          <div style={{marginLeft:'30px',fontWeight:'500'}} >
             <QRCodeSVG 
 value={`DISP${data.dispatchNo}`}  size={55}
   level="H"
@@ -308,7 +308,7 @@ value={`DISP${data.dispatchNo}`}  size={55}
           </div>
         )}
       </div>
-      <div style={{display:'flex',gap:'342px'}} className="header-info">
+      <div style={{display:'flex',gap:'352px'}} className="header-info">
         <p className="font-semibold" style={{ marginLeft: '-0px' }}>HSN Code: {data.hsnCode || "-"}</p>
   <p style={{ marginLeft: '-27px' }}>
   Date & Time of Dispatch: {queryData.formattedTravellingDate || "-"}
@@ -332,7 +332,7 @@ value={`DISP${data.dispatchNo}`}  size={55}
             <td>{data.districtName}</td>
           </tr>
           <tr>
-            <td style={{ textAlign: 'left', verticalAlign: 'top',maxWidth:'65px'}} colSpan="2" rowSpan="3">{data.lesseeNameAddress}</td>
+            <td style={{ textAlign: 'left', verticalAlign: 'top',maxWidth:'35px'}} colSpan="2" rowSpan="3">{data.lesseeNameAddress}</td>
             <td>Taluk Name :</td>
             <td>{data.Taluk}</td>
           </tr>

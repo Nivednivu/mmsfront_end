@@ -89,7 +89,6 @@ export const updateDispatchNumberAPI = async (reqBody) => {
       };      
 
 
-
 export const adminAddQuaeyAPI = async (reqBody) => {
   return await commonAPI("POST", `${SERVER_URL}/adminadd`,reqBody);
 };

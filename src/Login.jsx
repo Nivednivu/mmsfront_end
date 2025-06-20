@@ -69,11 +69,11 @@ const handleLogin = async (e) => {
           <label>
             Password *
             <div className="password-wrapper left-icon">
-              <span style={{marginRight:'210px'}}
+              <span style={{marginRight:'2px'}}
                 className="password-toggle-icon"
                 onClick={() => !isLoading && setShowPassword(!showPassword)}
               >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                {/* {showPassword ? <FaEyeSlash /> : <FaEye />} */}
               </span>
               <input
                 type={showPassword ? 'text' : 'password'}
