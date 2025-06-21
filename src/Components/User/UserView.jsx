@@ -208,7 +208,7 @@ try {
   font-size:18px;
               }
   .serial{
- font-family: "DotGothic16";
+   font-family: "DotGothic16", sans-serif;
   font-weight: 550;
   font-style: italic;
   transform: skewX(-5deg);
