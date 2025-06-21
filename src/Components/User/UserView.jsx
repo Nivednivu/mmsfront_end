@@ -292,11 +292,11 @@ try {
 
 
   const renderTable = (data, isDuplicate = false) => (
-    <div className="fontc table-wrapper" style={isDuplicate ? { marginTop: '-25px' } : {}}>
+    <div className="fontc table-wrapper" style={isDuplicate ? { marginTop: '-30px' } : {}}>
 
       <div className='img' style={{display:'flex', marginTop:'60px',marginLeft:'452px'}} >
         <div className='generatediv'>
-<h4 style={{marginLeft:'25px',marginTop:'15px',fontSize:'14px', fontWeight:'600',letterSpacing:'0px'}} className="generate-number" >{`TN00${data.SerialNo}`}</h4>
+<h4 style={{marginLeft:'25px',marginTop:'15px',fontSize:'14px', fontWeight:'600',letterSpacing:'1px'}} className="generate-number" >{`TN00${data.SerialNo}`}</h4>
         </div>
         {data.dispatchNo && (
           <div style={{marginLeft:'18px',fontWeight:'500'}} >
