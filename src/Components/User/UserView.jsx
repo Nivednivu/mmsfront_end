@@ -215,6 +215,7 @@ try {
   font-size:4px
   letter-spacing:50px;
   gap:12px;
+  color: #b8b3b3;
 }
             .query-table {
               width: 635px;
