@@ -292,7 +292,7 @@ try {
 
 
   const renderTable = (data, isDuplicate = false) => (
-    <div className="fontc table-wrapper" style={isDuplicate ? { marginTop: '-20px' } : {}}>
+    <div className="fontc table-wrapper" style={isDuplicate ? { marginTop: '-15px' } : {}}>
 
       <div className='img' style={{display:'flex', marginTop:'60px',marginLeft:'452px'}} >
         <div className='generatediv'>
