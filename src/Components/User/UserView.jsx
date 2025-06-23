@@ -296,7 +296,7 @@ try {
 
       <div className='img' style={{display:'flex', marginTop:'60px',marginLeft:'452px'}} >
         <div className='generatediv'>
-<h4 style={{marginLeft:'25px',marginTop:'15px',fontSize:'14px', fontWeight:'600',letterSpacing:'0px'}} className="generate-number" >{`TN00${data.SerialNo}`}</h4>
+<h4 style={{marginLeft:'25px',marginTop:'15px',fontSize:'14px', fontWeight:'600',letterSpacing:'0px'}} className="generate-number" >{`TN0001${data.SerialNo}`}</h4>
         </div>
         {data.dispatchNo && (
           <div style={{marginLeft:'18px',fontWeight:'500'}} >
@@ -324,7 +324,7 @@ value={`DISP${data.dispatchNo}`}  size={55}
             <td style={{width:'130px'}}>Lessee Id : {data.lesseeId}</td>
             <td style={{width:'130px'}}>Minecode : {data.minecode}</td>
             <td style={{width:'130px'}}>Lease Area Details </td>
-            <td style={{width:'130px'}}>Serial No: <span className='serial' style={{letterSpacing:'1px',fontSize:'9px'}}>{`TN00${data.SerialNo}`}</span></td>
+            <td style={{width:'130px'}}>Serial No: <span className='serial' style={{letterSpacing:'1px',fontSize:'9px'}}>{`TN0001${data.SerialNo}`}</span></td>
           </tr>
           <tr>
             <td>Lessee Name and Address :</td>
