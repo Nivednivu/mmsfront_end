@@ -152,12 +152,7 @@ function AdminQueryList() {
                   </td>
                   <td>
                     <div className="action-buttons">
-                      <button 
-                        onClick={() => handleView(entry._id)}
-                        className="view-btn"
-                      >
-                        View
-                      </button>
+                   
                       <button 
                         onClick={() => handleDelete(entry._id)}
                         className="delete-btn"
