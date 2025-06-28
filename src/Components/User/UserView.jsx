@@ -295,11 +295,11 @@ try {
     <div className="fontc table-wrapper" style={isDuplicate ? { marginTop: '-15px' } : {}}>
 
       <div className='img' style={{display:'flex', marginTop:'60px',marginLeft:'452px'}} >
-        <div className='generatediv'>
+        <div className='generatediv' style={{ width: '100px'}}>
 <h4 style={{marginLeft:'25px',marginTop:'15px',fontSize:'14px', fontWeight:'600',letterSpacing:'0px'}} className="generate-number" >{`TN00${data.SerialNo}`}</h4>
         </div>
         {data.dispatchNo && (
-          <div style={{marginLeft:'18px',fontWeight:'500'}} >
+          <div style={{marginLeft:'28px',fontWeight:'500'}} >
             <QRCodeSVG 
 value={`DISP${data.dispatchNo}`}  size={55}
   level="H"
