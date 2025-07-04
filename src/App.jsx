@@ -26,6 +26,7 @@ import QRCodeGenerator from './Components/QrCode/QRCodeGenerator';
 import UserLast from './Components/User/UserLast';
 import Quaryyy from './Components/Quaryyy';
 import QueryLastData from './Components/QrCode/QueryLastData';
+import AllUsersData from './Components/User/AllUsersData';
 
 
 function App() {
@@ -59,6 +60,7 @@ function App() {
       <Route path='/lastuser/:id' element={<UserLast/>  }  />
       <Route path='/qu' element={<Quaryyy/>  }  />
       <Route path='/q' element={<QueryLastData/>  }  />
+      <Route path='/alluser' element={<AllUsersData/>  }  />
 
       {/* <Route path="/vehicle-manag/:id" element={<VehicleForm />} /> */}
 
