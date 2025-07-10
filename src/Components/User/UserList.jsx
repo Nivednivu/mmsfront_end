@@ -162,7 +162,7 @@ function UserList() {
                   <td>{renderCell(query, 'bulkPermitNo')}</td>
                   <td>{`DISP${query.dispatchNo}`}</td>
                   <td>{renderCell(query, 'minecode')}</td>
-                  <td>{`TN00${query.SerialNo}`}</td>
+                  <td>{`TN${query.SerialNo}`}</td>
                   <td>{renderCell(query, 'mineralName')}</td>
                   <td className='action-butt'>
                     <button onClick={() => handleView(query)}>View</button>

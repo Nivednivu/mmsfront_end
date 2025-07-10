@@ -48,7 +48,11 @@ const Sidebar = () => {
 
 
           
-          <li>Apply New</li>
+          <li>                    <Link to={'/alluser'}
+           style={{  color: '#333',  textDecoration: 'none',}}>
+          All Users
+          </Link>
+</li>
           <li>In Process</li>
           <li>Grievances</li>
           <li>Mine Transfer</li>

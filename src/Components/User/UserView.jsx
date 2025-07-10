@@ -98,26 +98,35 @@ const handleAfterPrint = async () => {
     }
 
     const lastAdmin = lastAdminResponse.data;
-    console.log(lastAdmin?._id,"lastadmin id");
+    console.log(lastAdmin?._id, "lastadmin id");
     
     if (!lastAdmin?._id) {
       throw new Error("No valid admin ID found");
     }
 
-    const currentSerial = parseInt(queryData?.SerialNo || 0, 10);
-    const currentDispatch = parseInt(queryData?.dispatchNo || 0, 10);
+    // Get current values with their original string format
+    const currentSerialStr = queryData?.SerialNo || '0';
+    const currentDispatchStr = queryData?.dispatchNo || '0';
+
+    // Parse as numbers
+    const currentSerial = parseInt(currentSerialStr, 10);
+    const currentDispatch = parseInt(currentDispatchStr, 10);
+
+    // Function to format numbers with leading zeros like original
+    const formatWithLeadingZeros = (originalStr, newNum) => {
+      return String(newNum).padStart(originalStr.length, '0');
+    };
 
     const updatedData = {
       ...queryData,
-      SerialNo: currentSerial.toString(),
-      dispatchNo: currentDispatch.toString(),
+      SerialNo: formatWithLeadingZeros(currentSerialStr, currentSerial),
+      dispatchNo: formatWithLeadingZeros(currentDispatchStr, currentDispatch),
       time: new Date().toLocaleString(),
       _id: lastAdmin._id // Use the fetched admin ID
     };
-// updateAdminData
+
     const response = await adminQuaeyIdupdateAPI(userId, updatedData);
     
-    // Check for successful update (200-299 status code or your API's success indicator)
     if (response.status >= 200 && response.status < 300) {
       console.log("Serial number updated in admin DB:", response.data);
       setQueryData(updatedData);
@@ -129,7 +138,6 @@ const handleAfterPrint = async () => {
     setError(`Update failed: ${err.message}`);
   }
 };
-
 
 
 const handlePrint = async () => {
@@ -296,7 +304,7 @@ try {
 
       <div className='img' style={{display:'flex', marginTop:'60px',marginLeft:'452px'}} >
         <div className='generatediv' style={{ width: '100px'}}>
-<h4 style={{marginLeft:'25px',marginTop:'15px',fontSize:'14px', fontWeight:'600',letterSpacing:'0px'}} className="generate-number" >{`TN00${data.SerialNo}`}</h4>
+<h4 style={{marginLeft:'25px',marginTop:'15px',fontSize:'14px', fontWeight:'600',letterSpacing:'0px'}} className="generate-number" >{`TN${data.SerialNo}`}</h4>
         </div>
         {data.dispatchNo && (
           <div style={{marginLeft:'28px',fontWeight:'500'}} >
@@ -324,7 +332,7 @@ value={`DISP${data.dispatchNo}`}  size={55}
             <td style={{width:'130px'}}>Lessee Id : {data.lesseeId}</td>
             <td style={{width:'130px'}}>Minecode : {data.minecode}</td>
             <td style={{width:'130px'}}>Lease Area Details </td>
-            <td style={{width:'130px'}}>Serial No: <span className='serial' style={{letterSpacing:'1px',fontSize:'9px'}}>{`TN00${data.SerialNo}`}</span></td>
+            <td style={{width:'130px'}}>Serial No: <span className='serial' style={{letterSpacing:'1px',fontSize:'9px'}}>{`TN${data.SerialNo}`}</span></td>
           </tr>
           <tr>
             <td>Lessee Name and Address :</td>

@@ -27,7 +27,7 @@ import UserLast from './Components/User/UserLast';
 import Quaryyy from './Components/Quaryyy';
 import QueryLastData from './Components/QrCode/QueryLastData';
 import AllUsersData from './Components/User/AllUsersData';
-
+ 
 
 function App() {
   return (

@@ -123,11 +123,15 @@ const handleSubmit = async (e) => {
   try {
     setLoading(true);
 
-    // Get current and end serial/dispatch numbers
-    const currentSerial = parseInt(userDetails.SerialNo || '0', 10);
-    const currentDispatch = parseInt(userDetails.dispatchNo || '0', 10);
-    const serialEnd = parseInt(userDetails.SerialEndNo || '0', 10);
-    // const dispatchEnd = parseInt(userDetails.dispatchEndNo || '0', 10);
+    // Get current and end serial/dispatch numbers with their original string format
+    const currentSerialStr = userDetails.SerialNo || '0';
+    const currentDispatchStr = userDetails.dispatchNo || '0';
+    const serialEndStr = userDetails.SerialEndNo || '0';
+
+    // Parse as numbers for comparison
+    const currentSerial = parseInt(currentSerialStr, 10);
+    const currentDispatch = parseInt(currentDispatchStr, 10);
+    const serialEnd = parseInt(serialEndStr, 10);
 
     // Check if serial number has reached the limit
     if (serialEnd > 0 && currentSerial >= serialEnd) {
@@ -135,23 +139,22 @@ const handleSubmit = async (e) => {
       return;
     }
 
-    // If you want to check dispatch range later, uncomment this
-    // if (dispatchEnd > 0 && currentDispatch >= dispatchEnd) {
-    //   alert('Dispatch number range has been exhausted. Please contact admin.');
-    //   return;
-    // }
-
     // Compute new values (respecting the serial end limit)
-    const newSerial = serialEnd > 0 ? Math.min(currentSerial + 1, serialEnd) : currentSerial + 1;
-    const newDispatch = currentDispatch + 1;
+    const newSerialNum = serialEnd > 0 ? Math.min(currentSerial + 1, serialEnd) : currentSerial + 1;
+    const newDispatchNum = currentDispatch + 1;
+
+    // Function to format numbers with leading zeros like original
+    const formatWithLeadingZeros = (originalStr, newNum) => {
+      return String(newNum).padStart(originalStr.length, '0');
+    };
 
     // Merge form data with user info and updated serials
     const dispatchData = {
       ...formData,
       userId: userData.id,
       lesseeId: userData.lesseeId,
-      SerialNo: newSerial,
-      dispatchNo: newDispatch,
+      SerialNo: formatWithLeadingZeros(currentSerialStr, newSerialNum),
+      dispatchNo: formatWithLeadingZeros(currentDispatchStr, newDispatchNum),
       createdAt: new Date().toISOString()
     };
 
@@ -164,11 +167,11 @@ const handleSubmit = async (e) => {
     if (response.status === 200 || response.status === 201) {
       alert("Dispatch submitted successfully");
 
-      // Update local state with new serials
+      // Update local state with new serials (formatted with leading zeros)
       const updatedUserDetails = {
         ...userDetails,
-        SerialNo: newSerial,
-        dispatchNo: newDispatch
+        SerialNo: formatWithLeadingZeros(currentSerialStr, newSerialNum),
+        dispatchNo: formatWithLeadingZeros(currentDispatchStr, newDispatchNum)
       };
       setUserDetails(updatedUserDetails);
 
@@ -190,7 +193,6 @@ const handleSubmit = async (e) => {
     setLoading(false);
   }
 };
-
 
   if (loading) {
     return <div className="dispatch-container">Loading data...</div>;

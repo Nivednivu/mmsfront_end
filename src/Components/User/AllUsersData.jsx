@@ -128,7 +128,7 @@ function AllUsersData() {
                   <td>{query.bulkPermitNo || 'N/A'}</td>
                   <td>{`DISP${query.dispatchNo}`}</td>
                   <td>{query.minecode || 'N/A'}</td>
-                  <td>{`TN00${query.SerialNo}`}</td>
+                  <td>{`TN${query.SerialNo}`}</td>
                   <td>{query.mineralName || 'N/A'}</td>
                   <td className='action-butt'>
                     <button

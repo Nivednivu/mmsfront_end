@@ -80,7 +80,7 @@ function UserLast() {
         <h3>Dispatch & Vehicle Details</h3>
         <div className="details-grid">
           <div className="detail-row"><span>Dispatch No:</span><span>{`DISP${lastEmployee.dispatchNo}` || 'N/A'}</span></div>
-          <div className="detail-row"><span>Serial No:</span><span>{`TN00${lastEmployee.SerialNo}` || 'N/A'}</span></div>
+          <div className="detail-row"><span>Serial No:</span><span>{`TN${lastEmployee.SerialNo}` || 'N/A'}</span></div>
           <div className="detail-row"><span>Delivered To:</span><span>{lastEmployee.deliveredTo || 'N/A'}</span></div>
           <div className="detail-row"><span>Destination:</span><span>{lastEmployee.destinationAddress || 'N/A'}</span></div>
           <div className="detail-row"><span>Vehicle No:</span><span>{lastEmployee.vehicleNo || 'N/A'}</span></div>

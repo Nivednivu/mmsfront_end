@@ -96,25 +96,31 @@ function QueryEntry() {
     }
   };
 
-
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      // First check if lesseeId exists
-      const checkResponse = await checkLesseeIdExists(formData.lesseeId);
+      // First check if lesseeId exists - ensure it's treated as a string
+      const checkResponse = await checkLesseeIdExists(String(formData.lesseeId));
       
       if (checkResponse.data.exists) {
         // If user exists, ask if they want to update
         const shouldUpdate = window.confirm(
-        `  User with Lessee ID ${formData.lesseeId} already exists.\nDo you want to update the existing record?`
+          `User with Lessee ID ${formData.lesseeId} already exists.\nDo you want to update the existing record?`
         );
         
         if (shouldUpdate) {
+          // Function to decrement while preserving format
+          const decrementWithLeadingZeros = (value) => {
+            const num = parseInt(value, 10);
+            const length = value.length;
+            return String(num - 1).padStart(length, '0');
+          };
+          
           const submissionData = {
             ...formData,
-            SerialNo: (parseInt(formData.SerialNo) - 1).toString(),
-            dispatchNo: (parseInt(formData.dispatchNo) - 1).toString()
+            SerialNo: decrementWithLeadingZeros(formData.SerialNo),
+            dispatchNo: decrementWithLeadingZeros(formData.dispatchNo)
           };
           
           // Update existing user
@@ -130,10 +136,17 @@ function QueryEntry() {
       }
 
       // If user doesn't exist, navigate to register page with form data
-      alert("new user add ")
+      alert("new user add");
       navigate('/register', { 
         state: { 
-          newUserData: formData
+          newUserData: {
+            ...formData,
+            // Decrement values for new user as well
+            SerialNo: decrementWithLeadingZeros(formData.SerialNo),
+            SerialEndNo: formData.SerialEndNo ? decrementWithLeadingZeros(formData.SerialEndNo) : '',
+            dispatchNo: decrementWithLeadingZeros(formData.dispatchNo),
+            lesseeId: String(formData.lesseeId).padStart(String(formData.lesseeId).length, '0')
+          }
         } 
       });
       
@@ -141,7 +154,7 @@ function QueryEntry() {
       console.error('Error:', error);
       alert('Error occurred while processing your request.');
     }
-  };
+  };// Add this new API function to your allAPI.js
 // Add this new API function to your allAPI.js
   return (
     <div className="lease-form-container">
