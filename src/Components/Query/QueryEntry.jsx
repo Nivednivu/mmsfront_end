@@ -97,64 +97,63 @@ function QueryEntry() {
   };
 
 const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      // First check if lesseeId exists - ensure it's treated as a string
-      const checkResponse = await checkLesseeIdExists(String(formData.lesseeId));
+  // Define the helper function at the top of handleSubmit
+  const decrementWithLeadingZeros = (value) => {
+    const num = parseInt(value, 10);
+    const length = value.length;
+    return String(num - 1).padStart(length, '0');
+  };
+
+  try {
+    // First check if lesseeId exists - ensure it's treated as a string
+    const checkResponse = await checkLesseeIdExists(String(formData.lesseeId));
+    
+    if (checkResponse.data.exists) {
+      // If user exists, ask if they want to update
+      const shouldUpdate = window.confirm(
+        `User with Lessee ID ${formData.lesseeId} already exists.\nDo you want to update the existing record?`
+      );
       
-      if (checkResponse.data.exists) {
-        // If user exists, ask if they want to update
-        const shouldUpdate = window.confirm(
-          `User with Lessee ID ${formData.lesseeId} already exists.\nDo you want to update the existing record?`
-        );
+      if (shouldUpdate) {
+        const submissionData = {
+          ...formData,
+          SerialNo: decrementWithLeadingZeros(formData.SerialNo),
+          dispatchNo: decrementWithLeadingZeros(formData.dispatchNo)
+        };
         
-        if (shouldUpdate) {
-          // Function to decrement while preserving format
-          const decrementWithLeadingZeros = (value) => {
-            const num = parseInt(value, 10);
-            const length = value.length;
-            return String(num - 1).padStart(length, '0');
-          };
-          
-          const submissionData = {
-            ...formData,
-            SerialNo: decrementWithLeadingZeros(formData.SerialNo),
-            dispatchNo: decrementWithLeadingZeros(formData.dispatchNo)
-          };
-          
-          // Update existing user
-          const updateResponse = await updateAdminData(submissionData);
-          if (updateResponse.status === 200) {
-            alert("User data updated successfully");
-            navigate('/');
-          } else {
-            alert('Update failed. Please try again.');
-          }
+        // Update existing user
+        const updateResponse = await updateAdminData(submissionData);
+        if (updateResponse.status === 200) {
+          alert("User data updated successfully");
+          navigate('/');
+        } else {
+          alert('Update failed. Please try again.');
         }
-        return;
       }
-
-      // If user doesn't exist, navigate to register page with form data
-      alert("new user add");
-      navigate('/register', { 
-        state: { 
-          newUserData: {
-            ...formData,
-            // Decrement values for new user as well
-            SerialNo: decrementWithLeadingZeros(formData.SerialNo),
-            SerialEndNo: formData.SerialEndNo ? decrementWithLeadingZeros(formData.SerialEndNo) : '',
-            dispatchNo: decrementWithLeadingZeros(formData.dispatchNo),
-            lesseeId: String(formData.lesseeId).padStart(String(formData.lesseeId).length, '0')
-          }
-        } 
-      });
-      
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Error occurred while processing your request.');
+      return;
     }
-  };// Add this new API function to your allAPI.js
+
+    // If user doesn't exist, navigate to register page with form data
+    alert("new user add");
+    navigate('/register', { 
+      state: { 
+        newUserData: {
+          ...formData,
+          SerialNo: decrementWithLeadingZeros(formData.SerialNo),
+          SerialEndNo: formData.SerialEndNo ? decrementWithLeadingZeros(formData.SerialEndNo) : '',
+          dispatchNo: decrementWithLeadingZeros(formData.dispatchNo),
+          lesseeId: String(formData.lesseeId).padStart(String(formData.lesseeId).length, '0')
+        }
+      } 
+    });
+    
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error occurred while processing your request.');
+  }
+};// Add this new API function to your allAPI.js
 // Add this new API function to your allAPI.js
   return (
     <div className="lease-form-container">
