@@ -317,14 +317,20 @@ value={`DISP${data.dispatchNo}`}  size={55}
           </div>
         )}
       </div>
-      <div style={{display:'flex',gap:'355px'}} className="header-info">
-        <p className="font-semibold" style={{ marginLeft: '-0px' }}>HSN Code: {data.hsnCode || "-"}</p>
-  <p style={{ marginLeft: '-27px' }}>
-  Date & Time of Dispatch: {queryData.formattedTravellingDate || "-"}
-</p>
-
-
-      </div>
+    <div style={{ 
+  display: 'flex',
+  justifyContent: 'space-between',
+  width: '100%',
+  marginLeft:'-2px'
+}} className="header-info">
+  <div style={{ minWidth: '150px'  }}>
+    <p className="font-semibold">HSN Code: {data.hsnCode || "-"}</p>
+  </div>
+  
+  <div style={{ minWidth: '250px', marginRight:'11px'  }}>
+    <p>Date & Time of Dispatch: {queryData.formattedTravellingDate || "-"}</p>
+  </div>
+</div> 
       <div className='text'>
       <table style={{marginTop:'-3px'}} className="query-table">
         <tbody className="table-body">
@@ -457,7 +463,7 @@ value={`DISP${data.dispatchNo}`}  size={55}
             <td style={{ textAlign: 'left', verticalAlign: 'top'}}>Signature of AD / DD :</td>
             <td>
               {data.signature ? 
-                <img src={data.signature} alt="AD Signature" style={{ maxHeight: '30px' }} /> : 
+                <img src={data.signature} alt="AD Signature"  style={{ width: '140px', height: '30px', objectFit: 'contain' }} /> : 
                 'N/A'}
             </td>
           </tr>
