@@ -21,60 +21,80 @@ const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
+const handleRegister = async (e) => {
+  e.preventDefault();
 
-    const { fullName, email, username, password, confirmPassword } = user;
+  const { fullName, email, username, password, confirmPassword } = user;
 
-    if (!fullName || !email || !username || !password) {
-      alert("Please fill all required fields!");
-      return;
+  // Basic validation
+  if (!fullName || !email || !username || !password) {
+    alert("Please fill all required fields!");
+    return;
+  }
+
+  // Email format validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    alert("Please enter a valid email address!");
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    alert("Passwords do not match!");
+    return;
+  }
+
+  setIsLoading(true);
+  try {
+
+    const decrementWithLeadingZeros = (value) => {
+      if (!value) return value;
+      const num = parseInt(value, 10);
+      const originalLength = value.length;
+      return String(num).padStart(originalLength, '0');
+    };
+    // Prepare submission data
+    const submissionData = {
+      ...formData,
+      SerialNo: decrementWithLeadingZeros(formData.SerialNo),
+      dispatchNo: decrementWithLeadingZeros(formData.dispatchNo),
+      lesseeId: String(formData.lesseeId).padStart(6, '0'),
+      email // Make sure email is included
+    };
+
+    // First create the admin query entry
+    const queryResponse = await adminAddQuaeyAPI(submissionData);
+    
+    if (!queryResponse.data.success) {
+      throw new Error(queryResponse.data.message);
     }
 
-    if (password !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
+    // Then register the user credentials
+    const reqBody = {
+      userId: queryResponse.data.data._id,
+      fullname: fullName,
+      email,
+      lesseeId: username,
+      password
+    };
+
+    const result = await updateAdminWithCredentials(reqBody);
+
+    if (result.status === 200) {
+      alert("Registration successful! You can now login.");
+      navigate('/');
+    } else {
+      throw new Error('Failed to register user');
     }
+  } catch (error) {
+    console.error("Registration error:", error);
+    // Show specific error message from backend or generic message
+    alert(error.message || "This email already exist.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-    setIsLoading(true);
-    try {
-      // First create the admin query entry
-      const submissionData = {
-        ...formData,
-        SerialNo: (parseInt(formData.SerialNo) - 1).toString(),
-        dispatchNo: (parseInt(formData.dispatchNo) - 1).toString()
-      };
-
-      const queryResponse = await adminAddQuaeyAPI(submissionData);
-      
-      if (queryResponse.status !== 201) {
-        throw new Error('Failed to save query data');
-      }
-
-      // Then register the user credentials
-      const reqBody = {
-        userId: queryResponse.data.data._id,
-        fullname: fullName,
-        email,
-        lesseeId: username,
-        password
-      };
-
-      const result = await updateAdminWithCredentials(reqBody);
-
-      if (result.status === 200) {
-        alert("Registration successful! You can now login.");
-        navigate('/');
-      } else {
-        throw new Error('Failed to register user');
-      }
-    } catch (error) {
-      console.error("Registration error:", error);
-      alert(error.response?.data?.message || "Registration failed. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div style={{marginRight:'600px'}} className="register-container">

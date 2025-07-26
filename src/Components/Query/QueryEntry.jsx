@@ -113,7 +113,7 @@ const handleSubmit = async (e) => {
     if (checkResponse.data.exists) {
       // If user exists, ask if they want to update
       const shouldUpdate = window.confirm(
-        `User with Lessee ID ${formData.lesseeId} already exists.\nDo you want to update the existing record?`
+       ` User with Lessee ID ${formData.lesseeId} already exists.\nDo you want to update the existing record?`
       );
       
       if (shouldUpdate) {
