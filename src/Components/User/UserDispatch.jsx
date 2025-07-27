@@ -1,22 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import './UserDispatch.css';
-import { adminAddQuaeyByIdAPI, updateAdminData } from '../../Server/allAPI';
+import { adminAddQuaeyByIdAPI } from '../../Server/allAPI';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 function UserDispatch() {
   const navigate = useNavigate();
   const location = useLocation();
   const { userData } = location.state || {};
-console.log(userData);
 
   const getCurrentDateTime = () => {
     const now = new Date();
     const offset = now.getTimezoneOffset();
-    const local = new Date(now.getTime() - offset * 60000);
-    return local.toISOString().slice(0, 16);
+    return new Date(now.getTime() - offset * 60000).toISOString().slice(0, 16);
   };
 
-  // Define initial form state
   const initialFormState = {
     deliveredTo: '',
     vehicleNo: '',
@@ -38,26 +35,26 @@ console.log(userData);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState(initialFormState);
 
-  // Fetch user-specific data when component mounts
+  
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        
         if (!userData?.id) {
           alert('User data not available. Please login again.');
           navigate('/');
           return;
         }
 
-        // Fetch user-specific data using their id
         const response = await adminAddQuaeyByIdAPI(userData.id);
-        console.log(response.data);
-        
         if (response.data) {
-          setUserDetails(response.data);
-        } else {
-          throw new Error('No user data received');
+          // Format numbers with leading zeros
+          const formattedData = {
+            ...response.data,
+            SerialNo: response.data.SerialNo ? String(response.data.SerialNo): '000001',
+            dispatchNo: response.data.dispatchNo ? String(response.data.dispatchNo) : '000001'
+          };
+          setUserDetails(formattedData);
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -71,21 +68,9 @@ console.log(userData);
     fetchUserData();
   }, [userData, navigate]);
 
-  // Auto-update date time
-  useEffect(() => {
-    if (autoDate) {
-      const interval = setInterval(() => {
-        setFormData(prev => ({
-          ...prev,
-          travellingDate: getCurrentDateTime()
-        }));
-      }, 60000);
-      return () => clearInterval(interval);
-    }
-  }, [autoDate]);
+  // ... [keep other useEffect hooks the same]
 
-  // Calculate required time based on distance
-  useEffect(() => {
+    useEffect(() => {
     if (formData.totalDistance) {
       const distance = parseFloat(formData.totalDistance);
       if (!isNaN(distance)) {
@@ -104,95 +89,121 @@ console.log(userData);
     }
   }, [formData.totalDistance, formData.travellingDate]);
 
-  const handleChange = (e) => {
+
+   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Special handling for travellingDate in manual mode
+    if (name === 'travellingDate') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+        // Clear requiredTime only if we're in manual mode
+        requiredTime: !autoDate ? '' : prev.requiredTime
+      }));
+      return;
+    }
+    
     setFormData(prev => ({
       ...prev,
       [name]: value,
     }));
   };
+console.log(formData.travellingDate);
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
 
-  if (!userDetails) {
-    alert('User data is not loaded yet. Please wait...');
-    return;
-  }
+const deliveredTo = formData.deliveredTo
+const vehicleNo = formData.vehicleNo
+const vehicleType = formData.vehicleType
+const totalDistance =formData.totalDistance
+const quantity = formData.quantity
+const driverName = formData.driverName
+const driverPhoneNo = formData.driverPhoneNo
+const driverLicenseNo = formData.driverLicenseNo
+const driverSignature = formData.driverSignature
+const via = formData.via
+const travellingDate = formData.travellingDate
+const requiredTime = formData.requiredTime
+const destinationAddress= formData.destinationAddress
 
-  try {
-    setLoading(true);
 
-    // Get current and end serial/dispatch numbers with their original string format
-    const currentSerialStr = userDetails.SerialNo || '0';
-    const currentDispatchStr = userDetails.dispatchNo || '0';
-    const serialEndStr = userDetails.SerialEndNo || '0';
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    // Parse as numbers for comparison
-    const currentSerial = parseInt(currentSerialStr, 10);
-    const currentDispatch = parseInt(currentDispatchStr, 10);
-    const serialEnd = parseInt(serialEndStr, 10);
-
-    // Check if serial number has reached the limit
-    if (serialEnd > 0 && currentSerial >= serialEnd) {
-      alert('Serial number range has been exhausted. Please contact admin.');
+    if (!userDetails) {
+      alert('User data is not loaded yet. Please wait...');
       return;
     }
 
-    // Compute new values (respecting the serial end limit)
-    const newSerialNum = serialEnd > 0 ? Math.min(currentSerial + 1, serialEnd) : currentSerial + 1;
-    const newDispatchNum = currentDispatch + 1;
+    try {
+      setLoading(true);
 
-    // Function to format numbers with leading zeros like original
-    const formatWithLeadingZeros = (originalStr, newNum) => {
-      return String(newNum).padStart(originalStr.length, '0');
-    };
+      // Get current numbers with leading zeros
+      const currentSerialStr = userDetails.SerialNo || '000001';
+      const currentDispatchStr = userDetails.dispatchNo || '000001';
+      const serialEndStr = userDetails.SerialEndNo || '999999';
 
-    // Merge form data with user info and updated serials
-    const dispatchData = {
-      ...formData,
-      userId: userData.id,
-      lesseeId: userData.lesseeId,
-      SerialNo: formatWithLeadingZeros(currentSerialStr, newSerialNum),
-      dispatchNo: formatWithLeadingZeros(currentDispatchStr, newDispatchNum),
-      createdAt: new Date().toISOString()
-    };
+      // Parse as numbers for comparison
+      const currentSerial = parseInt(currentSerialStr, 10);
+      const currentDispatch = parseInt(currentDispatchStr, 10);
+      const serialEnd = parseInt(serialEndStr, 10);
 
-    console.log(userDetails, "userDetails");
-    console.log(dispatchData, "dispatchData");
+      if (serialEnd > 0 && currentSerial >= serialEnd) {
+        alert('Serial number range exhausted. Contact admin.');
+        return;
+      }
 
-    const response = await updateAdminData(dispatchData);
-    console.log(response.data, "queryDataAPI");
+      // Calculate next numbers with leading zeros
+      const nextSerial = String(currentSerial + 1).padStart(currentSerialStr.length, '0');
+      const nextDispatch = String(currentDispatch + 1).padStart(currentDispatchStr.length, '0');
+console.log(nextSerial,"seral in userdispatch page");
 
-    if (response.status === 200 || response.status === 201) {
-      alert("Dispatch submitted successfully");
-
-      // Update local state with new serials (formatted with leading zeros)
-      const updatedUserDetails = {
+      // Prepare data for preview (not saving to DB yet)
+      const previewData = {
+        ...formData,
         ...userDetails,
-        SerialNo: formatWithLeadingZeros(currentSerialStr, newSerialNum),
-        dispatchNo: formatWithLeadingZeros(currentDispatchStr, newDispatchNum)
+        userId: userData.id,
+        lesseeId: userData.lesseeId,
+        SerialNo: nextSerial,
+        dispatchNo: nextDispatch,
+        createdAt: new Date().toISOString(),
+        status: 'pending' // Mark as pending until printed
       };
-      setUserDetails(updatedUserDetails);
+console.log(previewData,"preview data in userdispatch page");
 
-      navigate('/userview', {
-        state: {
-          userData: response.data
-        }
-      });
-
-      // Reset form
-      setFormData(initialFormState);
-    } else {
-      throw new Error('Submission failed');
+      // Navigate to view page with preview data
+// In handleSubmit function, modify the navigate call:
+navigate('/userview', {
+  state: {
+    previewData: previewData,
+    deliveredTo:deliveredTo,
+    vehicleNo:vehicleNo,
+    vehicleType:vehicleType,
+    totalDistance:totalDistance,
+    quantity:quantity,
+    driverName:driverName,
+    driverPhoneNo:driverPhoneNo,
+    driverLicenseNo:driverLicenseNo,
+    driverSignature:driverSignature,
+    via:via,
+    travellingDate :travellingDate,
+    requiredTime:requiredTime,
+    destinationAddress:destinationAddress,
+    userData: {  // Ensure consistent structure
+      data: {
+        _id: userData.id,  // Map to expected structure
+        ...userData
+      }
     }
-  } catch (error) {
-    console.error('Error submitting dispatch:', error);
-    alert(error.response?.data?.message || 'Failed to submit dispatch data');
-  } finally {
-    setLoading(false);
   }
-};
+});
+    } catch (error) {
+      console.error('Error preparing dispatch:', error);
+      alert('Failed to prepare dispatch');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return <div className="dispatch-container">Loading data...</div>;

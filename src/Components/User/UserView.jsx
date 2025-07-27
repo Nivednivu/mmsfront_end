@@ -14,15 +14,34 @@ import { useLocation, useNavigate } from 'react-router-dom';
 function UserView() {
 const navigate = useNavigate()
     const location = useLocation();
-    const { userData } = location.state || {};
+    const { previewData,userData,travellingDate,requiredTime,destinationAddress,deliveredTo,vehicleNo,vehicleType,totalDistance,quantity,driverName,driverPhoneNo,driverLicenseNo,driverSignature,via } = location.state || {};
   const userId = userData?.data._id
-console.log(userId);
-
+  const [dispatchData, setDispatchData] = useState({
+    deliveredTo: previewData?.deliveredTo || '',
+    vehicleNo: previewData?.vehicleNo || '',
+    vehicleType: previewData?.vehicleType || '',
+    totalDistance: previewData?.totalDistance || '',
+    requiredTime: previewData?.requiredTime || '',
+    travellingDate : previewData?.travellingDate || '',
+    quantity: previewData?.quantity || '',
+    driverName: previewData?.driverName || '',
+    driverPhoneNo: previewData?.driverPhoneNo || '',
+    driverLicenseNo: previewData?.driverLicenseNo || '',
+    destinationAddress: previewData?.destinationAddress || '',
+    driverSignature: previewData?.driverSignature || '',
+    via: previewData?.via || '',
+    serialNumber: previewData?.SerialNo || '',
+    dispatchNumber: previewData?.dispatchNo || ''
+    
+  });
+  
   const [queryData, setQueryData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [imageUrl, setImageUrl] = useState('');
   const printRef = useRef();
+
+
 
   
 
@@ -41,6 +60,7 @@ console.log(userId);
 
         // Pass the ID directly to the API function
         const response = await adminAddQuaeyByIdAPI(userId);
+        // console.log(response);
         
         if (!response?.data) {
           throw new Error('No data received from server');
@@ -48,11 +68,12 @@ console.log(userId);
 
         const data = response.data.data || response.data;
         if (!data) throw new Error('Empty response data');
+// console.log("data",data);
 
 
-        const formattedDate = data.travellingDate 
+        const formattedDate = travellingDate 
         ? (() => {
-            const date = new Date(data.travellingDate);
+            const date = new Date(travellingDate);
             const pad = num => num.toString().padStart(2, '0');
             const randomSeconds = pad(Math.floor(Math.random() * 61)); // 00-60
             const hours = date.getHours();
@@ -98,15 +119,15 @@ const handleAfterPrint = async () => {
     }
 
     const lastAdmin = lastAdminResponse.data;
-    console.log(lastAdmin?._id, "lastadmin id");
+    // console.log(lastAdmin?._id, "lastadmin id");
     
     if (!lastAdmin?._id) {
       throw new Error("No valid admin ID found");
     }
 
     // Get current values with their original string format
-    const currentSerialStr = queryData?.SerialNo || '0';
-    const currentDispatchStr = queryData?.dispatchNo || '0';
+    const currentSerialStr = dispatchData.serialNumber ;
+    const currentDispatchStr = dispatchData.dispatchNumber ;
 
     // Parse as numbers
     const currentSerial = parseInt(currentSerialStr, 10);
@@ -114,7 +135,7 @@ const handleAfterPrint = async () => {
 
     // Function to format numbers with leading zeros like original
     const formatWithLeadingZeros = (originalStr, newNum) => {
-      return String(newNum).padStart(originalStr.length, '0');
+      return String(newNum).padStart(originalStr.length);
     };
 
     const updatedData = {
@@ -128,7 +149,7 @@ const handleAfterPrint = async () => {
     const response = await adminQuaeyIdupdateAPI(userId, updatedData);
     
     if (response.status >= 200 && response.status < 300) {
-      console.log("Serial number updated in admin DB:", response.data);
+      // console.log("Serial number updated in admin DB:", response.data);
       setQueryData(updatedData);
     } else {
       throw new Error(response.data?.message || "Update failed with unknown error");
@@ -140,6 +161,7 @@ const handleAfterPrint = async () => {
 };
 
 
+
 const handlePrint = async () => {
   try {
     // First ensure we have data to print
@@ -147,16 +169,37 @@ const handlePrint = async () => {
       setError('No data available to print');
       return;
     }
-try {
-      const response = await queryDataAPI(queryData);
-      if (!response.data.success) {
-        throw new Error(response.data.message || 'Failed to save query data');
+console.log("query data",queryData);
+
+    // Combine queryData and dispatchData for saving
+    const combinedData = {
+      ...queryData,
+      ...dispatchData,
+      // Ensure these fields are properly formatted
+      SerialNo: dispatchData.serialNumber,
+      dispatchNo: dispatchData.dispatchNumber,
+      time: new Date().toLocaleString()
+    };
+
+    // Save to query API before printing
+    try {
+      const response = await queryDataAPI(combinedData);
+      if (!response.data?.success) {
+        throw new Error(response.data?.message || 'Failed to save query data');
       }
       console.log('Data saved to query API:', response.data);
+      
+      // Update local state with the saved data
+      setQueryData(prev => ({
+        ...prev,
+        ...dispatchData,
+        SerialNo: dispatchData.serialNumber,
+        dispatchNo: dispatchData.dispatchNumber
+      }));
     } catch (apiError) {
       console.error('Error saving to query API:', apiError);
-      // You might choose to continue with printing even if API fails
-      // or handle it differently based on your requirements
+      // You might want to show a warning but continue with printing
+      setError(`Warning: Data not saved - ${apiError.message}`);
     }
 
     const printWindow = window.open('', '_blank');
@@ -300,20 +343,51 @@ try {
 
 
   const renderTable = (data, isDuplicate = false) => (
-    <div className="fontc table-wrapper" style={isDuplicate ? { marginTop: '-15px' } : {}}>
+    <div className="fontc table-wrapper" style={isDuplicate ? { marginTop: '-0px' } : {}}>
 
       <div className='img' style={{display:'flex', marginTop:'60px',marginLeft:'452px'}} >
         <div className='generatediv' style={{ width: '100px'}}>
-<h4 style={{marginLeft:'25px',marginTop:'15px',fontSize:'14px', fontWeight:'600',letterSpacing:'0px'}} className="generate-number" >{`TN${data.SerialNo}`}</h4>
+<h4 style={{marginLeft:'25px',marginTop:'15px',fontSize:'14px', fontWeight:'600',letterSpacing:'0px'}} className="generate-number" >{`TN${dispatchData.serialNumber}`}</h4>
         </div>
-        {data.dispatchNo && (
-          <div style={{marginLeft:'28px',fontWeight:'500'}} >
+        {dispatchData.dispatchNumber && (
+          <div style={{marginLeft:'33px',fontWeight:'500'}} >
             <QRCodeSVG 
-value={`DISP${data.dispatchNo}`}  size={55}
-  level="H"
+value={`TN${dispatchData.serialNumber},DISP${dispatchData.dispatchNumber},${queryData.minecode},${
+ travellingDate
+      ? new Date(travellingDate).toLocaleString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        })
+        .replace(/\//g, '-')
+        .replace(',', '')    
+      : '-'
+},${totalDistance}Kms,${travellingDate && requiredTime ? (() => {
+      const start = new Date(travellingDate);
+      const end = new Date(requiredTime);
+      const diffMs = end - start;
+      const diffHours = Math.round(diffMs / (1000 * 60 * 60)); // rounded hours
 
-/>
+      const formatted = end
+        .toLocaleString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        })
+        .replace(/\//g, '-')
+        .replace(',', '');
 
+      return` ${diffHours} hrs`;
+    })() : '-'} ,${data.mineralName}(${quantity}MT),${vehicleNo},${destinationAddress}`} size={49}
+      level="H"
+      fgColor='#000000'
+    />
           </div>
         )}
       </div>
@@ -323,11 +397,11 @@ value={`DISP${data.dispatchNo}`}  size={55}
   width: '100%',
   marginLeft:'-2px'
 }} className="header-info">
-  <div style={{ minWidth: '150px'  }}>
+  <div style={{ minWidth: '150px', marginTop:'8px' }}>
     <p className="font-semibold">HSN Code: {data.hsnCode || "-"}</p>
   </div>
   
-  <div style={{ minWidth: '250px', marginRight:'11px'  }}>
+  <div style={{ minWidth: '250px', marginRight:'11px',  marginTop:'8px'}}>
     <p>Date & Time of Dispatch: {queryData.formattedTravellingDate || "-"}</p>
   </div>
 </div> 
@@ -338,7 +412,7 @@ value={`DISP${data.dispatchNo}`}  size={55}
             <td style={{width:'130px'}}>Lessee Id : {data.lesseeId}</td>
             <td style={{width:'130px'}}>Minecode : {data.minecode}</td>
             <td style={{width:'130px'}}>Lease Area Details </td>
-            <td style={{width:'130px'}}>Serial No: <span className='serial' style={{letterSpacing:'1px',fontSize:'9px'}}>{`TN${data.SerialNo}`}</span></td>
+            <td style={{width:'130px'}}>Serial No: <span className='serial' style={{letterSpacing:'1px',fontSize:'9px'}}>{`TN${dispatchData.serialNumber}`}</span></td>
           </tr>
           <tr>
             <td>Lessee Name and Address :</td>
@@ -372,33 +446,33 @@ value={`DISP${data.dispatchNo}`}  size={55}
           </tr>
           <tr>
             <td>Dispatch Slip No :</td>
-            <td>{`DISP${data.dispatchNo}`}</td>
+            <td>{`DISP${dispatchData.dispatchNumber}`}</td>
             <td>Within Tamil Nadu</td>
             <td>{data.withinTamilNadu}</td>
           </tr>
           <tr>
             <td>Delivered To :</td>
-            <td colSpan="3">{data.deliveredTo}</td>
+            <td colSpan="3">{deliveredTo}</td>
           </tr>
           <tr>
             <td>Vehicle No :</td>
-            <td>{data.vehicleNo}</td>
+            <td>{vehicleNo}</td>
             <td colSpan="2">Destination Address :</td>
           </tr>
           <tr>
             <td>Vehicle Type :</td>
-            <td>{data.vehicleType}</td>
-            <td  style={{ textAlign: 'left', verticalAlign: 'top'}}  colSpan="2" rowSpan="4">{data.destinationAddress}</td>
+            <td>{vehicleType}</td>
+            <td  style={{ textAlign: 'left', verticalAlign: 'top'}}  colSpan="2" rowSpan="4">{destinationAddress}</td>
           </tr>
           <tr>
             <td>Total Distance (in Kms) :</td>
-            <td>{data.totalDistance}</td>
+            <td>{totalDistance}</td>
           </tr>
          <tr>
   <td>Travelling Date :</td>
   <td>
-    {data.travellingDate
-      ? new Date(data.travellingDate).toLocaleString('en-GB', {
+    {travellingDate
+      ? new Date(travellingDate).toLocaleString('en-GB', {
           day: '2-digit',
           month: '2-digit',
           year: 'numeric',
@@ -414,9 +488,9 @@ value={`DISP${data.dispatchNo}`}  size={55}
 <tr>
   <td>Required Time :</td>
   <td>
-    {data.travellingDate && data.requiredTime ? (() => {
-      const start = new Date(data.travellingDate);
-      const end = new Date(data.requiredTime);
+    {travellingDate && requiredTime ? (() => {
+      const start = new Date(travellingDate);
+      const end = new Date(requiredTime);
       const diffMs = end - start;
       const diffHours = Math.round(diffMs / (1000 * 60 * 60)); // rounded hours
 
@@ -439,21 +513,21 @@ value={`DISP${data.dispatchNo}`}  size={55}
 
           <tr>
             <td>Quantity (in MT):</td>
-            <td>{data.quantity}</td>
+            <td>{quantity}</td>
             <td>Driver Name:</td>
-            <td>{data.driverName}</td>
+            <td>{driverName}</td>
           </tr>
           <tr>
             <td>Driver License No:</td>
-            <td>{data.driverLicenseNo}</td>
+            <td>{driverLicenseNo}</td>
             <td>Via</td>
-            <td>{data.via}</td>
+            <td>{via}</td>
           </tr>
           <tr>
             <td>Driver Phone No :</td>
-            <td>{data.driverPhoneNo}</td>
+            <td>{driverPhoneNo}</td>
             <td>Lessee / Authorized Person Name :</td>
-            <td>{data.lesseeName}</td>
+            <td>{dispatchData.lesseeName}</td>
           </tr>
           <tr>
             <td style={{ textAlign: 'left', verticalAlign: 'top'}} >Driver Signature :</td>
@@ -463,7 +537,7 @@ value={`DISP${data.dispatchNo}`}  size={55}
             <td style={{ textAlign: 'left', verticalAlign: 'top'}}>Signature of AD / DD :</td>
             <td>
               {data.signature ? 
-                <img src={data.signature} alt="AD Signature"  style={{ width: '140px', height: '30px', objectFit: 'contain' }} /> : 
+                <img src={data.signature} alt="AD Signature"  style={{ width: '140px', height: '25px', objectFit: 'contain' }} /> : 
                 'N/A'}
             </td>
           </tr>
