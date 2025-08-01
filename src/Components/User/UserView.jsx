@@ -15,151 +15,123 @@ function UserView() {
 const navigate = useNavigate()
     const location = useLocation();
     const { previewData,userData,travellingDate,requiredTime,destinationAddress,deliveredTo,vehicleNo,vehicleType,totalDistance,quantity,driverName,driverPhoneNo,driverLicenseNo,driverSignature,via } = location.state || {};
-  const userId = userData?.data._id
-  const [dispatchData, setDispatchData] = useState({
-    deliveredTo: previewData?.deliveredTo || '',
-    vehicleNo: previewData?.vehicleNo || '',
-    vehicleType: previewData?.vehicleType || '',
-    totalDistance: previewData?.totalDistance || '',
-    requiredTime: previewData?.requiredTime || '',
-    travellingDate : previewData?.travellingDate || '',
-    quantity: previewData?.quantity || '',
-    driverName: previewData?.driverName || '',
-    driverPhoneNo: previewData?.driverPhoneNo || '',
-    driverLicenseNo: previewData?.driverLicenseNo || '',
-    destinationAddress: previewData?.destinationAddress || '',
-    driverSignature: previewData?.driverSignature || '',
-    via: previewData?.via || '',
-    serialNumber: previewData?.SerialNo || '',
-    dispatchNumber: previewData?.dispatchNo || ''
-    
-  });
-  
+ 
+
+ 
+  const userId = userData?.data._id;
+  const serialNumber = previewData?.SerialNo || '';
+  const dispatchNumber = previewData?.dispatchNo
   const [queryData, setQueryData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [imageUrl, setImageUrl] = useState('');
   const printRef = useRef();
 
+  const [currentTime, setCurrentTime] = useState(new Date());
 
+  // Function to generate random 2-digit number (00-59)
+  const getRandomSeconds = () => {
+    return Math.floor(Math.random() * 60).toString().padStart(2, '0');
+  };
 
-  
+  // Modified format function with random seconds
+  const formatDateTimeWithRandomSeconds = (date) => {
+    if (!date) return '-';
+    
+    const formattedDate = date.toLocaleString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    })
+    .replace(/\//g, '-')
+    .replace(',', '')
+    .replace(/\s?[AP]M/i, '')
+    .trim();
+
+    // Insert random seconds
+    return `${formattedDate}:${getRandomSeconds()}`;
+  };
+
+  // Live time updater effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
-    // Only fetch if we have a valid ID
-    if (!userId) {
-      console.error('No user ID available');
-      navigate('/');
-      return;
-    }
-
-    const fetchData = async () => {
+    const initializeData = async () => {
       try {
-        setLoading(true);
-        setError(null);
-
-        // Pass the ID directly to the API function
-        const response = await adminAddQuaeyByIdAPI(userId);
-        // console.log(response);
-        
-        if (!response?.data) {
-          throw new Error('No data received from server');
+        if (previewData) {
+          // Use data passed from previous screen
+          setQueryData(previewData);
+        } else if (userId) {
+          // Fetch data if not passed via location state
+          const response = await adminAddQuaeyByIdAPI(userId);
+          if (response.data) {
+            setQueryData(response.data);
+          } else {
+            throw new Error("No data received from server");
+          }
+        } else {
+          throw new Error("No user ID or preview data available");
         }
-
-        const data = response.data.data || response.data;
-        if (!data) throw new Error('Empty response data');
-// console.log("data",data);
-
-
-        const formattedDate = travellingDate 
-        ? (() => {
-            const date = new Date(travellingDate);
-            const pad = num => num.toString().padStart(2, '0');
-            const randomSeconds = pad(Math.floor(Math.random() * 61)); // 00-60
-            const hours = date.getHours();
-            const twelveHour = hours % 12 || 12; // Convert to 12-hour format (1-12)
-            
-            return `${pad(date.getDate())}-${pad(date.getMonth() + 1)}-${date.getFullYear()} ` +
-                  ` ${pad(twelveHour)}:${pad(date.getMinutes())}:${randomSeconds}`;
-          })()
-        : "-";
-
-      const completeData = {
-        ...data,
-        time: new Date().toLocaleString(),
-        formattedTravellingDate: formattedDate
-      };
-
-      setQueryData(completeData);
-
       } catch (err) {
-        console.error('Fetch error:', err);
+        console.error('Data initialization error:', err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, [userId, navigate]); // Add userId to dependencies
+    initializeData();
+  }, [userId, previewData]);
 
-  // ... rest of your component
+  const refreshPage = () => {
+    navigate(0); // Reload current page
+  };
 
-const handleAfterPrint = async () => {
-  try {
-    if (!queryData) {
-      console.error("No query data available");
-      return;
+  const handleAfterPrint = async () => {
+    try {
+      if (!queryData) {
+        throw new Error("No query data available");
+      }
+
+      const lastAdminResponse = await adminAddQuaeyByIdAPI(userId);
+      if (!lastAdminResponse?.data) {
+        throw new Error("Failed to fetch last admin data");
+      }
+
+      const lastAdmin = lastAdminResponse.data;
+      if (!lastAdmin?._id) {
+        throw new Error("No valid admin ID found");
+      }
+
+      const updatedData = {
+        ...queryData,
+        SerialNo: serialNumber,
+        dispatchNo:dispatchNumber,
+        time: new Date().toLocaleString(),
+        _id: lastAdmin._id
+      };
+
+      const response = await adminQuaeyIdupdateAPI(userId, updatedData);
+      
+      if (response.status >= 200 && response.status < 300) {
+        setQueryData(updatedData);
+        refreshPage();
+      } else {
+        throw new Error(response.data?.message || "Update failed");
+      }
+    } catch (err) {
+      console.error('Failed to update serial number:', err);
+      setError(`Update failed: ${err.message}`);
     }
-
-    // First get the latest admin data to ensure we have the correct ID
-    const lastAdminResponse = await adminAddQuaeyByIdAPI(userId);
-    if (!lastAdminResponse.data) {
-      throw new Error("Failed to fetch last admin data");
-    }
-
-    const lastAdmin = lastAdminResponse.data;
-    // console.log(lastAdmin?._id, "lastadmin id");
-    
-    if (!lastAdmin?._id) {
-      throw new Error("No valid admin ID found");
-    }
-
-    // Get current values with their original string format
-    const currentSerialStr = dispatchData.serialNumber ;
-    const currentDispatchStr = dispatchData.dispatchNumber ;
-
-    // Parse as numbers
-    const currentSerial = parseInt(currentSerialStr, 10);
-    const currentDispatch = parseInt(currentDispatchStr, 10);
-
-    // Function to format numbers with leading zeros like original
-    const formatWithLeadingZeros = (originalStr, newNum) => {
-      return String(newNum).padStart(originalStr.length);
-    };
-
-    const updatedData = {
-      ...queryData,
-      SerialNo: formatWithLeadingZeros(currentSerialStr, currentSerial),
-      dispatchNo: formatWithLeadingZeros(currentDispatchStr, currentDispatch),
-      time: new Date().toLocaleString(),
-      _id: lastAdmin._id // Use the fetched admin ID
-    };
-
-    const response = await adminQuaeyIdupdateAPI(userId, updatedData);
-    
-    if (response.status >= 200 && response.status < 300) {
-      // console.log("Serial number updated in admin DB:", response.data);
-      setQueryData(updatedData);
-    } else {
-      throw new Error(response.data?.message || "Update failed with unknown error");
-    }
-  } catch (err) {
-    console.error('Failed to update serial number:', err);
-    setError(`Update failed: ${err.message}`);
-  }
-};
-
+  };
 
 
 const handlePrint = async () => {
@@ -174,10 +146,9 @@ console.log("query data",queryData);
     // Combine queryData and dispatchData for saving
     const combinedData = {
       ...queryData,
-      ...dispatchData,
       // Ensure these fields are properly formatted
-      SerialNo: dispatchData.serialNumber,
-      dispatchNo: dispatchData.dispatchNumber,
+      SerialNo:serialNumber,
+      dispatchNo:dispatchNumber,
       time: new Date().toLocaleString()
     };
 
@@ -192,9 +163,8 @@ console.log("query data",queryData);
       // Update local state with the saved data
       setQueryData(prev => ({
         ...prev,
-        ...dispatchData,
-        SerialNo: dispatchData.serialNumber,
-        dispatchNo: dispatchData.dispatchNumber
+        SerialNo:serialNumber,
+        dispatchNo:dispatchNumber
       }));
     } catch (apiError) {
       console.error('Error saving to query API:', apiError);
@@ -347,12 +317,12 @@ console.log("query data",queryData);
 
       <div className='img' style={{display:'flex', marginTop:'60px',marginLeft:'452px'}} >
         <div className='generatediv' style={{ width: '100px'}}>
-<h4 style={{marginLeft:'25px',marginTop:'15px',fontSize:'14px', fontWeight:'600',letterSpacing:'0px'}} className="generate-number" >{`TN${dispatchData.serialNumber}`}</h4>
+<h4 style={{marginLeft:'25px',marginTop:'15px',fontSize:'14px', fontWeight:'600',letterSpacing:'0px'}} className="generate-number" >{`TN${serialNumber}`}</h4>
         </div>
-        {dispatchData.dispatchNumber && (
+        {dispatchNumber && (
           <div style={{marginLeft:'33px',fontWeight:'500'}} >
             <QRCodeSVG 
-value={`TN${dispatchData.serialNumber},DISP${dispatchData.dispatchNumber},${queryData.minecode},${
+value={`TN${serialNumber},DISP${dispatchNumber},${queryData.minecode},${
  travellingDate
       ? new Date(travellingDate).toLocaleString('en-GB', {
           day: '2-digit',
@@ -402,7 +372,12 @@ value={`TN${dispatchData.serialNumber},DISP${dispatchData.dispatchNumber},${quer
   </div>
   
   <div style={{ minWidth: '250px', marginRight:'11px',  marginTop:'8px'}}>
-    <p>Date & Time of Dispatch: {queryData.formattedTravellingDate || "-"}</p>
+    <p>Date & Time of Dispatch:  <td>
+{travellingDate
+                ? formatDateTimeWithRandomSeconds(new Date(travellingDate))
+                : '-'}  </td>
+
+</p>
   </div>
 </div> 
       <div className='text'>
@@ -412,7 +387,7 @@ value={`TN${dispatchData.serialNumber},DISP${dispatchData.dispatchNumber},${quer
             <td style={{width:'130px'}}>Lessee Id : {data.lesseeId}</td>
             <td style={{width:'130px'}}>Minecode : {data.minecode}</td>
             <td style={{width:'130px'}}>Lease Area Details </td>
-            <td style={{width:'130px'}}>Serial No: <span className='serial' style={{letterSpacing:'1px',fontSize:'9px'}}>{`TN${dispatchData.serialNumber}`}</span></td>
+            <td style={{width:'130px'}}>Serial No: <span className='serial' style={{letterSpacing:'1px',fontSize:'9px'}}>{`TN${serialNumber}`}</span></td>
           </tr>
           <tr>
             <td>Lessee Name and Address :</td>
@@ -446,7 +421,7 @@ value={`TN${dispatchData.serialNumber},DISP${dispatchData.dispatchNumber},${quer
           </tr>
           <tr>
             <td>Dispatch Slip No :</td>
-            <td>{`DISP${dispatchData.dispatchNumber}`}</td>
+            <td>{`DISP${dispatchNumber}`}</td>
             <td>Within Tamil Nadu</td>
             <td>{data.withinTamilNadu}</td>
           </tr>
@@ -527,7 +502,7 @@ value={`TN${dispatchData.serialNumber},DISP${dispatchData.dispatchNumber},${quer
             <td>Driver Phone No :</td>
             <td>{driverPhoneNo}</td>
             <td>Lessee / Authorized Person Name :</td>
-            <td>{dispatchData.lesseeName}</td>
+            <td>{data.lesseeName}</td>
           </tr>
           <tr>
             <td style={{ textAlign: 'left', verticalAlign: 'top'}} >Driver Signature :</td>
@@ -577,16 +552,6 @@ value={`TN${dispatchData.serialNumber},DISP${dispatchData.dispatchNumber},${quer
       
       </div>
 
-      {/* Image preview */}
-      {imageUrl && (
-        <div className="image-preview no-print">
-          <h3></h3>
-          <img src={imageUrl} alt="Converted document" style={{ maxWidth: '100%' }} />
-          <a href={imageUrl} download="document.png" className="download-link">
-            
-          </a>
-        </div>
-      )}
     </div>
   );
 }
