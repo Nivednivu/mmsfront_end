@@ -188,7 +188,7 @@ console.log("query data",queryData);
           <style>
             @page { 
               size: A4; 
-              margin: 4mm; /* Reduced margin for more space */
+              margin: 5mm; /* Reduced margin for more space */
               margin-left:70px
                
             }
@@ -223,21 +223,20 @@ console.log("query data",queryData);
                
             }
               .generate-number {
-               color: rgb(87, 84, 84);
+               color: rgba(48, 46, 46, 1);
   font-weight: 350;
   font-style: normal;
-  font-size:18px;
+  font-size:15px;
               }
   .serial{
    font-family: "DotGothic16";
   font-weight: 650;
-  font-style: italic;
-  transform: skewX(-5deg);
+ font-style:normal;
   font-size:4px
   letter-spacing:50px;
   gap:12px;
-  color: #211f1fff;
-}
+  color: #b8b3b3;
+    }
             .query-table {
               width: 635px;
               border-collapse: collapse;
@@ -250,7 +249,7 @@ console.log("query data",queryData);
             }
             .query-table td {
               border: 1.5px solid black;
-              padding: 4px; /* Reduced padding */
+              padding: 3.8px; /* Reduced padding */
               line-height: 1.2;
               font-weight:500;
               
@@ -293,6 +292,7 @@ console.log("query data",queryData);
 
         </body>
       </html>
+
     `);
     printWindow.document.close();
 
