@@ -236,7 +236,7 @@ console.log("query data",queryData);
   font-size:4px
   letter-spacing:50px;
   gap:12px;
-  color: #b8b3b3;
+  color: #211f1fff;
 }
             .query-table {
               width: 635px;
@@ -367,11 +367,7 @@ value={`TN${serialNumber},DISP${dispatchNumber},${queryData.minecode},${
   width: '100%',
   marginLeft:'-2px'
 }} className="header-info">
-  <div style={{ minWidth: '150px', marginTop:'8px' }}>
-    <p className="font-semibold">HSN Code: {data.hsnCode || "-"}</p>
-  </div>
-  
-  <div style={{ minWidth: '250px', marginRight:'11px',  marginTop:'8px'}}>
+  <div style={{ minWidth: '250px', marginRight:'9px',  marginTop:'8px',fontSize:'9px'}}>
     <p>Date & Time of Dispatch:  <td>
 {travellingDate
                 ? formatDateTimeWithRandomSeconds(new Date(travellingDate))
