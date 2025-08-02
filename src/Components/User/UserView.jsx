@@ -396,7 +396,7 @@ value={`TN${serialNumber},DISP${dispatchNumber},${queryData.minecode},${
             <td>{data.districtName}</td>
           </tr>
           <tr>
-            <td style={{ textAlign: 'left', verticalAlign: 'top',maxWidth:'35px'}} colSpan="2" rowSpan="3">{data.lesseeNameAddress}</td>
+            <td style={{ textAlign: 'left', verticalAlign: 'top',maxWidth:'35px',whiteSpace: 'pre-line'}} colSpan="2" rowSpan="3">{data.lesseeNameAddress}</td>
             <td>Taluk Name :</td>
             <td>{data.Taluk}</td>
           </tr>
