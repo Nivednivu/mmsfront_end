@@ -361,12 +361,15 @@ value={`TN${serialNumber},DISP${dispatchNumber},${queryData.minecode},${
           </div>
         )}
       </div>
-    <div style={{ 
+        <div style={{ 
   display: 'flex',
   justifyContent: 'space-between',
   width: '100%',
   marginLeft:'-2px'
 }} className="header-info">
+    <div style={{ minWidth: '150px', marginTop:'10px' }}>
+    <p className="font-semibold" style={{fontSize: '9px', fontWeight: 400 }}>HSN Code: {data.hsnCode || "-"}</p>
+  </div>
   <div style={{ minWidth: '250px', marginRight:'9px',  marginTop:'8px',fontSize:'9px'}}>
     <p>Date & Time of Dispatch:  <td>
 {travellingDate
@@ -376,6 +379,7 @@ value={`TN${serialNumber},DISP${dispatchNumber},${queryData.minecode},${
 </p>
   </div>
 </div> 
+
       <div className='text'>
       <table style={{marginTop:'-3px'}} className="query-table">
         <tbody className="table-body">
